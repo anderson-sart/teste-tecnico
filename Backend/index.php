@@ -62,11 +62,11 @@ if (str_starts_with($path, '/api')) {
         $id = $matches[2] ?? null;
         
         if ($method === 'GET' && !$id) {
-            $stmt = $pdo->query('SELECT * FROM produtos ORDER BY codigo DESC');
+            $stmt = $pdo->query('SELECT * FROM produtos WHERE deleted_at IS NULL ORDER BY codigo DESC');
             echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         }
         elseif ($method === 'GET' && $id) {
-            $stmt = $pdo->prepare('SELECT * FROM produtos WHERE codigo = ?');
+            $stmt = $pdo->prepare('SELECT * FROM produtos WHERE codigo = ? AND deleted_at IS NULL');
             $stmt->execute([$id]);
             echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
         }
@@ -78,12 +78,12 @@ if (str_starts_with($path, '/api')) {
         }
         elseif ($method === 'PUT' && $id) {
             $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE produtos SET descricao=?, codigo_barras=?, valor_venda=?, peso_bruto=?, peso_liquido=? WHERE codigo=?');
+            $stmt = $pdo->prepare('UPDATE produtos SET descricao=?, codigo_barras=?, valor_venda=?, peso_bruto=?, peso_liquido=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
             $stmt->execute([$data['descricao'], $data['codigo_barras'], $data['valor_venda'], $data['peso_bruto'], $data['peso_liquido'], $id]);
             echo json_encode(['success' => true]);
         }
         elseif ($method === 'DELETE' && $id) {
-            $stmt = $pdo->prepare('DELETE FROM produtos WHERE codigo = ?');
+            $stmt = $pdo->prepare('UPDATE produtos SET deleted_at = NOW() WHERE codigo = ?');
             $stmt->execute([$id]);
             echo json_encode(['success' => true]);
         }
@@ -95,11 +95,11 @@ if (str_starts_with($path, '/api')) {
         $id = $matches[2] ?? null;
         
         if ($method === 'GET' && !$id) {
-            $stmt = $pdo->query('SELECT * FROM clientes ORDER BY codigo DESC');
+            $stmt = $pdo->query('SELECT * FROM clientes WHERE deleted_at IS NULL ORDER BY codigo DESC');
             echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         }
         elseif ($method === 'GET' && $id) {
-            $stmt = $pdo->prepare('SELECT * FROM clientes WHERE codigo = ?');
+            $stmt = $pdo->prepare('SELECT * FROM clientes WHERE codigo = ? AND deleted_at IS NULL');
             $stmt->execute([$id]);
             echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
         }
@@ -111,12 +111,12 @@ if (str_starts_with($path, '/api')) {
         }
         elseif ($method === 'PUT' && $id) {
             $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE clientes SET nome=?, fantasia=?, documento=?, endereco=? WHERE codigo=?');
+            $stmt = $pdo->prepare('UPDATE clientes SET nome=?, fantasia=?, documento=?, endereco=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
             $stmt->execute([$data['nome'], $data['fantasia'], $data['documento'], $data['endereco'], $id]);
             echo json_encode(['success' => true]);
         }
         elseif ($method === 'DELETE' && $id) {
-            $stmt = $pdo->prepare('DELETE FROM clientes WHERE codigo = ?');
+            $stmt = $pdo->prepare('UPDATE clientes SET deleted_at = NOW() WHERE codigo = ?');
             $stmt->execute([$id]);
             echo json_encode(['success' => true]);
         }

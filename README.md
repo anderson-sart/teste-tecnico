@@ -11,7 +11,7 @@ cd teste-tecnico
 docker-compose up -d
 ```
 
-Acesse: http://localhost:3000  
+Acesse: http://localhost:8000  
 **Login**: admin | **Senha**: admin123
 
 ## 📚 Documentação
@@ -30,9 +30,11 @@ Acesse: http://localhost:3000
 ## Estrutura do Projeto
 ```
 teste-tecnico-softline/
-├── Backend/          # API em C# (ASP.NET Core)
-├── Frontend/         # Interface web (HTML, CSS, JS)
-└── Database/         # Scripts SQL
+├── Backend/              # Aplicação PHP com Views + API
+│   ├── resources/views/  # Views PHP (Bootstrap)
+│   ├── database/         # Migrations e Seeders
+│   └── index.php         # Router principal
+└── Database/             # Scripts SQL PostgreSQL
 ```
 
 ## Funcionalidades
@@ -65,8 +67,7 @@ teste-tecnico-softline/
 ```bash
 docker-compose up -d
 ```
-Acesse o backend em: http://localhost:8000
-Acesse o frontend em: http://localhost:3000
+Acesse: http://localhost:8000
 
 ### Manualmente
 
@@ -80,10 +81,6 @@ Acesse o frontend em: http://localhost:3000
 4. Configure o `.env` com a conexão do PostgreSQL
 5. Execute `php artisan migrate`
 6. Execute `php artisan serve`
-
-#### Frontend
-1. Abra o arquivo `Frontend/index.html` no navegador
-   ou use: `python3 -m http.server 3000`
 
 ## Prazo de Entrega
 14/06/2026 às 23:59

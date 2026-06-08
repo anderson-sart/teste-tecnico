@@ -35,6 +35,9 @@
                             <tbody id="tbody"></tbody>
                         </table>
                     </div>
+                    <nav>
+                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -53,9 +56,22 @@
 </div>
 <?php $content = ob_get_clean(); ob_start(); ?>
 <script>
+let currentPage = 1;
+const perPage = 10;
+let allProdutos = [];
+
 async function loadProdutos() {
     const response = await fetch('/api/produtos');
-    const produtos = await response.json();
+    allProdutos = await response.json();
+    renderPage(1);
+}
+
+function renderPage(page) {
+    currentPage = page;
+    const start = (page - 1) * perPage;
+    const end = start + perPage;
+    const produtos = allProdutos.slice(start, end);
+    
     const tbody = document.getElementById('tbody');
     tbody.innerHTML = produtos.map(p => `
         <tr>
@@ -80,6 +96,34 @@ async function loadProdutos() {
             </td>
         </tr>
     `).join('');
+    
+    renderPagination();
+}
+
+function renderPagination() {
+    const totalPages = Math.ceil(allProdutos.length / perPage);
+    const pagination = document.getElementById('pagination');
+    
+    let html = '';
+    if (currentPage > 1) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="renderPage(${currentPage - 1}); return false;">Anterior</a></li>`;
+    }
+    
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="renderPage(${i}); return false;">${i}</a>
+            </li>`;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        }
+    }
+    
+    if (currentPage < totalPages) {
+        html += `<li class="page-item"><a class="page-link" href="#" onclick="renderPage(${currentPage + 1}); return false;">Próximo</a></li>`;
+    }
+    
+    pagination.innerHTML = html;
 }
 
 async function view(id) {
