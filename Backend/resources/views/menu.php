@@ -120,13 +120,8 @@ function updateThemeButton() {
     }
 }
 
-// Carrega tema salvo
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    document.documentElement.setAttribute('data-bs-theme', savedTheme);
-}
-
-loadStats();
+// Atualiza botão de tema na carga
 updateThemeButton();
+loadStats();
 </script>
 <?php $scripts = ob_get_clean(); $title = 'Menu'; include __DIR__ . '/layout.php'; ?>
