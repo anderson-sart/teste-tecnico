@@ -127,7 +127,8 @@
         function confirmDelete(message, callback) {
             document.getElementById('confirmMessage').innerHTML = message;
             confirmCallback = callback;
-            confirmModalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
+            const modalEl = document.getElementById('confirmModal');
+            confirmModalInstance = new bootstrap.Modal(modalEl);
             confirmModalInstance.show();
         }
         
@@ -140,7 +141,16 @@
                 }
                 if (confirmModalInstance) {
                     confirmModalInstance.hide();
+                    confirmModalInstance = null;
                 }
+            });
+        }
+        
+        // Fix aria-hidden warning
+        const confirmModalEl = document.getElementById('confirmModal');
+        if (confirmModalEl) {
+            confirmModalEl.addEventListener('hidden.bs.modal', function() {
+                confirmModalInstance = null;
             });
         }
         
