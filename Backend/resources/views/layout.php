@@ -119,19 +119,27 @@
         
         // Confirmation Modal
         let confirmCallback = null;
+        let confirmModalInstance = null;
+        
         function confirmDelete(message, callback) {
             document.getElementById('confirmMessage').innerHTML = message;
             confirmCallback = callback;
-            new bootstrap.Modal(document.getElementById('confirmModal')).show();
+            confirmModalInstance = new bootstrap.Modal(document.getElementById('confirmModal'));
+            confirmModalInstance.show();
         }
         
-        document.getElementById('confirmDelete')?.addEventListener('click', function() {
-            if (confirmCallback) {
-                confirmCallback();
-                confirmCallback = null;
-            }
-            bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
-        });
+        const confirmBtn = document.getElementById('confirmDelete');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                if (confirmCallback) {
+                    confirmCallback();
+                    confirmCallback = null;
+                }
+                if (confirmModalInstance) {
+                    confirmModalInstance.hide();
+                }
+            });
+        }
         
         // Form Validation with Real-time Feedback
         function setupFormValidation(formId) {
