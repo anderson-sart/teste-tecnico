@@ -45,6 +45,8 @@
 <script>
 const id = window.location.pathname.split('/').pop();
 const isEdit = id !== 'create';
+const urlParams = new URLSearchParams(window.location.search);
+const returnPage = urlParams.get('page') || '1';
 
 document.getElementById('documento').addEventListener('input', function(e) {
     let v = e.target.value.replace(/\D/g, '');
@@ -109,7 +111,8 @@ document.getElementById('form').addEventListener('submit', async (e) => {
         
         if (response.ok) {
             showToast(isEdit ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
-            setTimeout(() => window.location.href = '/clientes', 1500);
+            const redirectUrl = isEdit ? `/clientes?page=${returnPage}` : '/clientes';
+            setTimeout(() => window.location.href = redirectUrl, 1500);
         } else {
             throw new Error('Erro ao salvar');
         }

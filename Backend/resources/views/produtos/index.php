@@ -72,13 +72,23 @@ let filteredProdutos = [];
 let sortField = 'codigo';
 let sortDir = 'desc';
 
-async function loadProdutos() {
+async function loadProdutos(keepPage = false) {
     showLoading();
     try {
         const response = await fetch('/api/produtos');
         allProdutos = await response.json();
         filteredProdutos = allProdutos;
-        renderPage(1);
+        
+        if (keepPage) {
+            // Verifica se a página atual ainda tem dados
+            const totalPages = Math.ceil(filteredProdutos.length / perPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages; // Vai para última página se atual ficou vazia
+            }
+            renderPage(currentPage);
+        } else {
+            renderPage(1);
+        }
     } catch (error) {
         showToast('Erro ao carregar produtos', 'error');
     } finally {
@@ -143,7 +153,7 @@ function renderPage(page) {
                     <button class="btn btn-info" onclick="view(${p.codigo})" title="Ver">
                         <i class="bi bi-eye"></i>
                     </button>
-                    <a href="/produtos/edit/${p.codigo}" class="btn btn-warning" title="Editar">
+                    <a href="/produtos/edit/${p.codigo}?page=${currentPage}" class="btn btn-warning" title="Editar">
                         <i class="bi bi-pencil"></i>
                     </a>
                     <button class="btn btn-danger" onclick="del(${p.codigo})" title="Deletar">
@@ -208,12 +218,19 @@ async function del(id) {
         try {
             await fetch('/api/produtos/' + id, {method: 'DELETE'});
             showToast('Produto excluído com sucesso!', 'success');
-            loadProdutos();
+            loadProdutos(true); // Mantém a página atual
         } catch (error) {
             showToast('Erro ao excluir produto', 'error');
             hideLoading();
         }
     });
+}
+
+// Restaura página da URL
+const urlParams = new URLSearchParams(window.location.search);
+const pageParam = urlParams.get('page');
+if (pageParam) {
+    currentPage = parseInt(pageParam);
 }
 
 loadProdutos();

@@ -49,6 +49,8 @@
 <script>
 const id = window.location.pathname.split('/').pop();
 const isEdit = id !== 'create';
+const urlParams = new URLSearchParams(window.location.search);
+const returnPage = urlParams.get('page') || '1';
 
 // Setup form validation
 setupFormValidation('form');
@@ -100,7 +102,8 @@ document.getElementById('form').addEventListener('submit', async (e) => {
         
         if (response.ok) {
             showToast(isEdit ? 'Produto atualizado!' : 'Produto cadastrado!', 'success');
-            setTimeout(() => window.location.href = '/produtos', 1500);
+            const redirectUrl = isEdit ? `/produtos?page=${returnPage}` : '/produtos';
+            setTimeout(() => window.location.href = redirectUrl, 1500);
         } else {
             throw new Error('Erro ao salvar');
         }

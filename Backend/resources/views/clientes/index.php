@@ -74,13 +74,22 @@ function formatDoc(doc) {
            n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
 }
 
-async function loadClientes() {
+async function loadClientes(keepPage = false) {
     showLoading();
     try {
         const response = await fetch('/api/clientes');
         allClientes = await response.json();
         filteredClientes = allClientes;
-        renderPage(1);
+        
+        if (keepPage) {
+            const totalPages = Math.ceil(filteredClientes.length / perPage);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            }
+            renderPage(currentPage);
+        } else {
+            renderPage(1);
+        }
     } catch (error) {
         showToast('Erro ao carregar clientes', 'error');
     } finally {
@@ -144,7 +153,7 @@ function renderPage(page) {
                     <button class="btn btn-info" onclick="view(${c.codigo})" title="Ver">
                         <i class="bi bi-eye"></i>
                     </button>
-                    <a href="/clientes/edit/${c.codigo}" class="btn btn-warning" title="Editar">
+                    <a href="/clientes/edit/${c.codigo}?page=${currentPage}" class="btn btn-warning" title="Editar">
                         <i class="bi bi-pencil"></i>
                     </a>
                     <button class="btn btn-danger" onclick="del(${c.codigo})" title="Deletar">
@@ -208,12 +217,19 @@ async function del(id) {
         try {
             await fetch('/api/clientes/' + id, {method: 'DELETE'});
             showToast('Cliente excluído com sucesso!', 'success');
-            loadClientes();
+            loadClientes(true);
         } catch (error) {
             showToast('Erro ao excluir cliente', 'error');
             hideLoading();
         }
     });
+}
+
+// Restaura página da URL
+const urlParams = new URLSearchParams(window.location.search);
+const pageParam = urlParams.get('page');
+if (pageParam) {
+    currentPage = parseInt(pageParam);
 }
 
 loadClientes();
