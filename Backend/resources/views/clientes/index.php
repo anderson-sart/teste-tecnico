@@ -18,6 +18,11 @@
                                 <i class="bi bi-plus-circle"></i> Novo
                             </a>
                         </div>
+                        <div class="col-auto">
+                            <button class="btn btn-danger" id="btnDeleteSelected" style="display:none">
+                                <i class="bi bi-trash"></i> Excluir Selecionados (<span id="selectedCount">0</span>)
+                            </button>
+                        </div>
                         <div class="col-12 col-md">
                             <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
                         </div>
@@ -26,6 +31,9 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
+                                    <th style="width:40px">
+                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                    </th>
                                     <th style="cursor:pointer" onclick="sortBy('codigo')">
                                         Código <i class="bi bi-arrow-down-up"></i>
                                     </th>
@@ -144,6 +152,9 @@ function renderPage(page) {
     const tbody = document.getElementById('tbody');
     tbody.innerHTML = clientes.map(c => `
         <tr>
+            <td>
+                <input type="checkbox" class="form-check-input row-checkbox" value="${c.codigo}" onchange="updateSelection()">
+            </td>
             <td>${c.codigo}</td>
             <td>${c.nome}</td>
             <td class="d-none d-md-table-cell">${c.fantasia || '-'}</td>
@@ -224,6 +235,45 @@ async function del(id) {
         }
     });
 }
+
+// Seleção múltipla
+function updateSelection() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('btnDeleteSelected').style.display = count > 0 ? 'block' : 'none';
+    
+    const total = document.querySelectorAll('.row-checkbox').length;
+    document.getElementById('selectAll').checked = count === total && total > 0;
+    document.getElementById('selectAll').indeterminate = count > 0 && count < total;
+}
+
+document.getElementById('selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+        cb.checked = this.checked;
+    });
+    updateSelection();
+});
+
+document.getElementById('btnDeleteSelected').addEventListener('click', async function() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+    const count = ids.length;
+    
+    const message = `<p>Deseja realmente excluir <strong>${count}</strong> cliente(s) selecionado(s)?</p>`;
+    
+    confirmDelete(message, async () => {
+        showLoading();
+        try {
+            await Promise.all(ids.map(id => fetch('/api/clientes/' + id, {method: 'DELETE'})));
+            showToast(`${count} cliente(s) excluído(s) com sucesso!`, 'success');
+            loadClientes(true);
+        } catch (error) {
+            showToast('Erro ao excluir clientes', 'error');
+            hideLoading();
+        }
+    });
+});
 
 // Restaura página da URL
 const urlParams = new URLSearchParams(window.location.search);
