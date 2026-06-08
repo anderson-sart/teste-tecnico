@@ -23,31 +23,46 @@
                 <button type="submit" class="btn btn-primary btn-lg w-100">
                     <i class="bi bi-box-arrow-in-right"></i> Entrar
                 </button>
-                <div id="error" class="alert alert-danger mt-3 d-none"></div>
             </form>
         </div>
     </div>
 </div>
 <?php $content = ob_get_clean(); ob_start(); ?>
 <script>
+setupFormValidation('loginForm');
+
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value
-        })
-    });
-    const data = await response.json();
-    if (data.success) {
-        localStorage.setItem('username', data.username);
-        window.location.href = '/menu';
-    } else {
-        const error = document.getElementById('error');
-        error.textContent = data.message;
-        error.classList.remove('d-none');
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    showLoading();
+    
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('username', data.username);
+            showToast('Login realizado com sucesso!', 'success');
+            setTimeout(() => window.location.href = '/menu', 1000);
+        } else {
+            showToast(data.message || 'Usuário ou senha incorretos', 'error');
+            submitBtn.disabled = false;
+            hideLoading();
+        }
+    } catch (error) {
+        showToast('Erro ao fazer login', 'error');
+        submitBtn.disabled = false;
+        hideLoading();
     }
 });
 </script>

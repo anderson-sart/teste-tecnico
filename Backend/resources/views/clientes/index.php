@@ -75,10 +75,17 @@ function formatDoc(doc) {
 }
 
 async function loadClientes() {
-    const response = await fetch('/api/clientes');
-    allClientes = await response.json();
-    filteredClientes = allClientes;
-    renderPage(1);
+    showLoading();
+    try {
+        const response = await fetch('/api/clientes');
+        allClientes = await response.json();
+        filteredClientes = allClientes;
+        renderPage(1);
+    } catch (error) {
+        showToast('Erro ao carregar clientes', 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 function sortBy(field) {
@@ -193,9 +200,20 @@ async function view(id) {
 }
 
 async function del(id) {
-    if (!confirm('Deletar cliente?')) return;
-    await fetch('/api/clientes/' + id, {method: 'DELETE'});
-    loadClientes();
+    const cliente = allClientes.find(c => c.codigo == id);
+    const message = `<p>Deseja realmente excluir o cliente?</p><p class="fw-bold mb-0">${cliente ? cliente.nome : 'Cliente #' + id}</p>`;
+    
+    confirmDelete(message, async () => {
+        showLoading();
+        try {
+            await fetch('/api/clientes/' + id, {method: 'DELETE'});
+            showToast('Cliente excluído com sucesso!', 'success');
+            loadClientes();
+        } catch (error) {
+            showToast('Erro ao excluir cliente', 'error');
+            hideLoading();
+        }
+    });
 }
 
 loadClientes();

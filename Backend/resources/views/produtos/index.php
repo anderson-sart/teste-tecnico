@@ -73,10 +73,17 @@ let sortField = 'codigo';
 let sortDir = 'desc';
 
 async function loadProdutos() {
-    const response = await fetch('/api/produtos');
-    allProdutos = await response.json();
-    filteredProdutos = allProdutos;
-    renderPage(1);
+    showLoading();
+    try {
+        const response = await fetch('/api/produtos');
+        allProdutos = await response.json();
+        filteredProdutos = allProdutos;
+        renderPage(1);
+    } catch (error) {
+        showToast('Erro ao carregar produtos', 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 function sortBy(field) {
@@ -193,9 +200,20 @@ async function view(id) {
 }
 
 async function del(id) {
-    if (!confirm('Deletar produto?')) return;
-    await fetch('/api/produtos/' + id, {method: 'DELETE'});
-    loadProdutos();
+    const produto = allProdutos.find(p => p.codigo == id);
+    const message = `<p>Deseja realmente excluir o produto?</p><p class="fw-bold mb-0">${produto ? produto.descricao : 'Produto #' + id}</p>`;
+    
+    confirmDelete(message, async () => {
+        showLoading();
+        try {
+            await fetch('/api/produtos/' + id, {method: 'DELETE'});
+            showToast('Produto excluído com sucesso!', 'success');
+            loadProdutos();
+        } catch (error) {
+            showToast('Erro ao excluir produto', 'error');
+            hideLoading();
+        }
+    });
 }
 
 loadProdutos();

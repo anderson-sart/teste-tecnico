@@ -50,18 +50,36 @@
 const id = window.location.pathname.split('/').pop();
 const isEdit = id !== 'create';
 
+// Setup form validation
+setupFormValidation('form');
+
 if (isEdit) {
+    showLoading();
     fetch('/api/produtos/' + id).then(r => r.json()).then(p => {
         document.getElementById('descricao').value = p.descricao;
         document.getElementById('codigo_barras').value = p.codigo_barras || '';
         document.getElementById('valor_venda').value = p.valor_venda;
         document.getElementById('peso_bruto').value = p.peso_bruto;
         document.getElementById('peso_liquido').value = p.peso_liquido;
+        
+        // Trigger character counters
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.dispatchEvent(new Event('input'));
+        });
+        hideLoading();
+    }).catch(() => {
+        showToast('Erro ao carregar produto', 'error');
+        hideLoading();
     });
 }
 
 document.getElementById('form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    showLoading();
+    
     const data = {
         descricao: document.getElementById('descricao').value,
         codigo_barras: document.getElementById('codigo_barras').value,
@@ -73,14 +91,24 @@ document.getElementById('form').addEventListener('submit', async (e) => {
     const url = isEdit ? '/api/produtos/' + id : '/api/produtos';
     const method = isEdit ? 'PUT' : 'POST';
     
-    await fetch(url, {
-        method,
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    
-    document.getElementById('message').innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Salvo com sucesso!</div>';
-    setTimeout(() => window.location.href = '/produtos', 1500);
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            showToast(isEdit ? 'Produto atualizado!' : 'Produto cadastrado!', 'success');
+            setTimeout(() => window.location.href = '/produtos', 1500);
+        } else {
+            throw new Error('Erro ao salvar');
+        }
+    } catch (error) {
+        showToast('Erro ao salvar produto', 'error');
+        submitBtn.disabled = false;
+        hideLoading();
+    }
 });
 </script>
 <?php $scripts = ob_get_clean(); $title = 'Produto'; include __DIR__ . '/../layout.php'; ?>

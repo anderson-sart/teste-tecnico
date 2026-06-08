@@ -61,17 +61,35 @@ document.getElementById('documento').addEventListener('input', function(e) {
     e.target.value = v;
 });
 
+// Setup form validation
+setupFormValidation('form');
+
 if (isEdit) {
+    showLoading();
     fetch('/api/clientes/' + id).then(r => r.json()).then(c => {
         document.getElementById('nome').value = c.nome;
         document.getElementById('fantasia').value = c.fantasia || '';
         document.getElementById('documento').value = c.documento;
         document.getElementById('endereco').value = c.endereco || '';
+        
+        // Trigger character counters and masks
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.dispatchEvent(new Event('input'));
+        });
+        hideLoading();
+    }).catch(() => {
+        showToast('Erro ao carregar cliente', 'error');
+        hideLoading();
     });
 }
 
 document.getElementById('form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    showLoading();
+    
     const data = {
         nome: document.getElementById('nome').value,
         fantasia: document.getElementById('fantasia').value,
@@ -82,14 +100,24 @@ document.getElementById('form').addEventListener('submit', async (e) => {
     const url = isEdit ? '/api/clientes/' + id : '/api/clientes';
     const method = isEdit ? 'PUT' : 'POST';
     
-    await fetch(url, {
-        method,
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    
-    document.getElementById('message').innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i>Salvo com sucesso!</div>';
-    setTimeout(() => window.location.href = '/clientes', 1500);
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            showToast(isEdit ? 'Cliente atualizado!' : 'Cliente cadastrado!', 'success');
+            setTimeout(() => window.location.href = '/clientes', 1500);
+        } else {
+            throw new Error('Erro ao salvar');
+        }
+    } catch (error) {
+        showToast('Erro ao salvar cliente', 'error');
+        submitBtn.disabled = false;
+        hideLoading();
+    }
 });
 </script>
 <?php $scripts = ob_get_clean(); $title = 'Cliente'; include __DIR__ . '/../layout.php'; ?>
