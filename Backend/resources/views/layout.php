@@ -135,13 +135,14 @@
         const confirmBtn = document.getElementById('confirmDelete');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', function() {
+                this.blur(); // Remove focus antes de fechar
+                
                 if (confirmCallback) {
                     confirmCallback();
                     confirmCallback = null;
                 }
                 if (confirmModalInstance) {
                     confirmModalInstance.hide();
-                    confirmModalInstance = null;
                 }
             });
         }
@@ -150,7 +151,10 @@
         const confirmModalEl = document.getElementById('confirmModal');
         if (confirmModalEl) {
             confirmModalEl.addEventListener('hidden.bs.modal', function() {
-                confirmModalInstance = null;
+                if (confirmModalInstance) {
+                    confirmModalInstance.dispose();
+                    confirmModalInstance = null;
+                }
             });
         }
         
