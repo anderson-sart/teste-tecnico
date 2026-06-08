@@ -19,32 +19,38 @@ Acesse: http://localhost:8000
 - **[QUICKSTART.md](QUICKSTART.md)** - Guia rápido de 3 passos
 - **[INSTALL.md](INSTALL.md)** - Instalação detalhada (Docker e Manual)
 - **[RESUMO.md](RESUMO.md)** - Resumo completo do projeto
-- **[Database/README-POSTGRESQL.md](Database/README-POSTGRESQL.md)** - Informações do banco
 
 ## Tecnologias Utilizadas
-- **Front-end**: HTML, CSS, JavaScript (Vanilla JS / jQuery)
-- **Back-end**: PHP (Laravel)
+- **Front-end**: Bootstrap 5, JavaScript (integrado com PHP views)
+- **Back-end**: PHP com Migrations Laravel-style
 - **Banco de Dados**: PostgreSQL
 - **Infraestrutura**: Docker & Docker Compose
 
 ## Estrutura do Projeto
 ```
 teste-tecnico-softline/
-├── Backend/              # Aplicação PHP com Views + API
-│   ├── resources/views/  # Views PHP (Bootstrap)
-│   ├── database/         # Migrations e Seeders
-│   └── index.php         # Router principal
-└── Database/             # Scripts SQL PostgreSQL
+└── Backend/              # Aplicação PHP completa
+    ├── resources/views/  # Views PHP (Bootstrap 5)
+    ├── database/         # Migrations e Seeders
+    ├── index.php         # Router + API
+    └── artisan           # CLI para migrations
 ```
 
 ## Funcionalidades
 
 ### Páginas
 1. **Login** - Autenticação de usuário
-2. **Lista de Produtos** - Visualização, edição, exclusão de produtos
+2. **Lista de Produtos** - Visualização, edição, exclusão com paginação e pesquisa
 3. **Cadastro de Produtos** - Criação de novos produtos
-4. **Lista de Clientes** - Visualização, edição, exclusão de clientes
+4. **Lista de Clientes** - Visualização, edição, exclusão com paginação e pesquisa
 5. **Cadastro de Clientes** - Criação de novos clientes
+
+### Recursos Adicionais
+- Paginação (10 registros por página)
+- Pesquisa em tempo real (código, descrição, etc)
+- Ordenação por colunas (ASC/DESC)
+- Soft delete (exclusão lógica)
+- 100 registros de exemplo (50 produtos + 50 clientes)
 
 ### Campos - Produtos
 - Código (inteiro)
@@ -69,18 +75,7 @@ docker-compose up -d
 ```
 Acesse: http://localhost:8000
 
-### Manualmente
-
-#### Banco de Dados
-1. Execute os scripts na pasta `Database/` no PostgreSQL
-
-#### Backend
-1. Instale o Composer: https://getcomposer.org/
-2. Navegue até a pasta `Backend/`
-3. Execute `composer install`
-4. Configure o `.env` com a conexão do PostgreSQL
-5. Execute `php artisan migrate`
-6. Execute `php artisan serve`
+**Observação**: O banco de dados é inicializado automaticamente com migrations e seeders na primeira execução.
 
 ## Prazo de Entrega
 14/06/2026 às 23:59

@@ -11,7 +11,7 @@ cd teste-tecnico
 docker-compose up -d
 
 # 3. Acesse o sistema
-# Frontend: http://localhost:3000
+# http://localhost:8000
 # Usuário: admin | Senha: admin123
 ```
 
@@ -19,8 +19,7 @@ docker-compose up -d
 
 | Serviço | URL | Porta |
 |---------|-----|-------|
-| **Frontend** | http://localhost:3000 | 3000 |
-| **Backend API** | http://localhost:8000/api | 8000 |
+| **Sistema** | http://localhost:8000 | 8000 |
 | **PostgreSQL** | localhost:5432 | 5432 |
 
 ## 🔐 Credenciais
@@ -43,29 +42,32 @@ Password: softline_pass
 ## 📋 Checklist de Teste
 
 ### Login ✅
-- [ ] Acessar http://localhost:3000
+- [ ] Acessar http://localhost:8000
 - [ ] Fazer login com admin/admin123
-- [ ] Verificar redirecionamento para menu
+- [ ] Verificar redirecionamento para lista de produtos
 
 ### Produtos ✅
-- [ ] Clicar em "Produtos"
-- [ ] Ver lista de produtos (3 exemplos)
-- [ ] Clicar em "Ver" para visualizar detalhes
+- [ ] Ver lista com 50 produtos de exemplo
+- [ ] Testar pesquisa por código, descrição ou código de barras
+- [ ] Clicar em colunas para ordenar (ASC/DESC)
+- [ ] Navegar entre páginas (paginação de 10 registros)
 - [ ] Clicar em "Novo Produto"
 - [ ] Preencher formulário e salvar
 - [ ] Editar um produto existente
-- [ ] Deletar um produto
+- [ ] Deletar um produto (soft delete)
 
 ### Clientes ✅
-- [ ] Voltar ao menu e clicar em "Clientes"
-- [ ] Ver lista de clientes (2 exemplos)
-- [ ] Clicar em "Ver" para visualizar detalhes
+- [ ] Navegar para Clientes no menu
+- [ ] Ver lista com 50 clientes de exemplo
+- [ ] Testar pesquisa por código, nome, fantasia ou documento
+- [ ] Clicar em colunas para ordenar (ASC/DESC)
+- [ ] Navegar entre páginas (paginação de 10 registros)
 - [ ] Clicar em "Novo Cliente"
 - [ ] Digitar CPF (11 dígitos) e ver máscara aplicada
 - [ ] Digitar CNPJ (14 dígitos) e ver máscara aplicada
 - [ ] Salvar cliente
 - [ ] Editar um cliente existente
-- [ ] Deletar um cliente
+- [ ] Deletar um cliente (soft delete)
 
 ## 🧪 Testes da API (com curl)
 
@@ -137,20 +139,19 @@ docker exec -it softline_postgres psql -U softline_user -d softline_db
 ## 📊 Dados de Exemplo Pré-cadastrados
 
 ### Produtos
-1. Notebook Dell Inspiron - R$ 3.500,00
-2. Mouse Logitech MX Master - R$ 350,00
-3. Teclado Mecânico RGB - R$ 450,00
+- 50 produtos de exemplo com variados códigos, descrições e valores
+- Exemplos incluem: Mouse Logitech, Teclado Mecânico, Notebook Dell, etc
 
 ### Clientes
-1. João Silva Santos (CPF)
-2. Maria Oliveira Ltda (CNPJ)
+- 50 clientes de exemplo com CPF e CNPJ
+- Exemplos incluem: empresas e pessoas físicas variadas
 
 ## ⚠️ Troubleshooting
 
 ### Porta já em uso
 ```bash
-# Se a porta 3000, 8000 ou 5432 já estiver em uso, edite docker-compose.yml
-# Exemplo: mudar "3000:80" para "3001:80"
+# Se a porta 8000 ou 5432 já estiver em uso, edite docker-compose.yml
+# Exemplo: mudar "8000:80" para "8001:80"
 ```
 
 ### Backend não sobe
@@ -162,15 +163,11 @@ docker-compose logs backend
 docker-compose up -d --build backend
 ```
 
-### Erro de permissão no Laravel
-```bash
-docker exec -it softline_backend chmod -R 777 storage bootstrap/cache
-```
-
 ### Banco de dados vazio
 ```bash
 # Rodar migrations e seeders manualmente
-docker exec -it softline_backend php artisan migrate:fresh --seed
+docker exec -it softline_backend ./artisan migrate
+docker exec -it softline_backend ./artisan seed
 ```
 
 ## 📱 Responsividade
@@ -182,26 +179,27 @@ O sistema é responsivo e funciona em:
 
 ## 🎯 Estrutura de Rotas
 
-### Frontend
-- `/` ou `/index.html` - Login
-- `/menu.html` - Menu principal
-- `/produtos.html` - Lista de produtos
-- `/produto-form.html` - Formulário de produto
-- `/clientes.html` - Lista de clientes
-- `/cliente-form.html` - Formulário de cliente
+### Views
+- `/` - Login
+- `/produtos` - Lista de produtos
+- `/produtos/novo` - Formulário de cadastro de produto
+- `/produtos/editar/{id}` - Formulário de edição de produto
+- `/clientes` - Lista de clientes
+- `/clientes/novo` - Formulário de cadastro de cliente
+- `/clientes/editar/{id}` - Formulário de edição de cliente
 
-### Backend API
+### API
 - `POST /api/login` - Autenticação
 - `GET /api/produtos` - Lista produtos
 - `GET /api/produtos/{id}` - Busca produto
 - `POST /api/produtos` - Cria produto
 - `PUT /api/produtos/{id}` - Atualiza produto
-- `DELETE /api/produtos/{id}` - Deleta produto
+- `DELETE /api/produtos/{id}` - Deleta produto (soft delete)
 - `GET /api/clientes` - Lista clientes
 - `GET /api/clientes/{id}` - Busca cliente
 - `POST /api/clientes` - Cria cliente
 - `PUT /api/clientes/{id}` - Atualiza cliente
-- `DELETE /api/clientes/{id}` - Deleta cliente
+- `DELETE /api/clientes/{id}` - Deleta cliente (soft delete)
 
 ## 📧 Contato
 

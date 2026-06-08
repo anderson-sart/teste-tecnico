@@ -39,61 +39,55 @@ Projeto completo de sistema de cadastro de Produtos e Clientes usando Laravel + 
 ## 🛠️ Tecnologias Utilizadas
 
 ### Backend
-- **Framework**: Laravel 10
 - **Linguagem**: PHP 8.2
+- **Framework**: Migrations Laravel-style (sem framework completo)
 - **Banco de Dados**: PostgreSQL 15
 
 ### Frontend
-- **HTML5** - Estrutura das páginas
-- **CSS3** - Estilização e design responsivo
-- **JavaScript Vanilla** - Lógica e interação com API
-- **Fetch API** - Requisições HTTP
+- **HTML5 + PHP Views** - Templates integrados
+- **Bootstrap 5** - Framework CSS responsivo
+- **JavaScript Vanilla** - Lógica client-side (pesquisa, ordenação, paginação)
 
 ### Infraestrutura
 - **Docker** - Containerização
 - **Docker Compose** - Orquestração de containers
-- **Nginx** - Servidor web para frontend
 
 ## 📁 Estrutura do Projeto
 
 ```
 teste-tecnico-softline/
-├── Backend/                    # API Laravel
-│   ├── app/
-│   │   ├── Http/Controllers/  # AuthController, ProdutoController, ClienteController
-│   │   └── Models/            # Usuario, Produto, Cliente
-│   ├── database/
-│   │   ├── migrations/        # Estrutura das tabelas
-│   │   └── seeders/           # Dados iniciais
-│   ├── routes/api.php         # Rotas da API
-│   └── Dockerfile
-├── Frontend/                   # Interface Web
-│   ├── css/style.css          # Estilos
-│   ├── js/                    # Scripts JavaScript
-│   ├── index.html             # Login
-│   ├── menu.html              # Menu principal
-│   ├── produtos.html          # Lista de produtos
-│   ├── produto-form.html      # Formulário de produto
-│   ├── clientes.html          # Lista de clientes
-│   └── cliente-form.html      # Formulário de cliente
-├── Database/                   # Scripts SQL
-│   ├── 01-init-postgresql.sql
-│   └── 02-functions-postgresql.sql
-├── docker-compose.yml          # Configuração Docker
-├── README.md                   # Documentação principal
-└── INSTALL.md                  # Guia de instalação
+└── Backend/                    # Aplicação PHP completa
+    ├── resources/views/        # Views PHP com Bootstrap 5
+    │   ├── layout.php          # Layout base
+    │   ├── login.php           # Tela de login
+    │   ├── produtos/           # Views de produtos
+    │   │   ├── index.php       # Lista + pesquisa + ordenação
+    │   │   ├── create.php      # Formulário de cadastro
+    │   │   └── edit.php        # Formulário de edição
+    │   └── clientes/           # Views de clientes
+    │       ├── index.php       # Lista + pesquisa + ordenação
+    │       ├── create.php      # Formulário de cadastro
+    │       └── edit.php        # Formulário de edição
+    ├── database/
+    │   ├── migrations/         # Create tables + soft delete
+    │   └── seeders/            # DatabaseSeeder (100 registros)
+    ├── index.php               # Router + API endpoints
+    ├── artisan                 # CLI migrations simplificado
+    ├── docker-entrypoint.sh    # Auto-execução de migrations
+    └── Dockerfile
 ```
 
 ## 🚀 Como Executar
 
 ### Opção 1: Docker (Recomendado)
 ```bash
+git clone git@github.com:anderson-sart/teste-tecnico.git
+cd teste-tecnico
 docker-compose up -d
 ```
-Acesse: http://localhost:3000
+Acesse: http://localhost:8000
 
-### Opção 2: Manual
-Ver instruções detalhadas em `INSTALL.md`
+**Observação**: Migrations e seeders executam automaticamente na primeira inicialização.
 
 ## 🔐 Credenciais
 
@@ -106,53 +100,57 @@ Ver instruções detalhadas em `INSTALL.md`
 - `POST /api/login` - Login
 
 ### Produtos
-- `GET /api/produtos` - Listar todos
+- `GET /api/produtos` - Listar todos (com soft delete)
 - `GET /api/produtos/{id}` - Buscar por ID
 - `POST /api/produtos` - Criar
 - `PUT /api/produtos/{id}` - Atualizar
-- `DELETE /api/produtos/{id}` - Deletar
+- `DELETE /api/produtos/{id}` - Deletar (soft delete)
 
 ### Clientes
-- `GET /api/clientes` - Listar todos
+- `GET /api/clientes` - Listar todos (com soft delete)
 - `GET /api/clientes/{id}` - Buscar por ID
 - `POST /api/clientes` - Criar
 - `PUT /api/clientes/{id}` - Atualizar
-- `DELETE /api/clientes/{id}` - Deletar
+- `DELETE /api/clientes/{id}` - Deletar (soft delete)
 
 ## 🎨 Features Implementadas
 
 ### Frontend
-- Design responsivo e moderno
+- Design responsivo com Bootstrap 5
 - Validação de formulários
 - Máscaras automáticas para CPF/CNPJ
-- Modal para visualização de detalhes
+- Paginação client-side (10 registros/página)
+- Pesquisa em tempo real (filtragem sem reload)
+- Ordenação por colunas (ASC/DESC toggle)
 - Feedback visual para ações
 - Navegação intuitiva
 
 ### Backend
-- API RESTful
+- Router personalizado em index.php
+- API RESTful com JSON responses
 - Validação de dados
-- Autenticação com hash de senha
-- Migrations e Seeders
-- CORS configurado
-- Relacionamentos no Eloquent
+- Autenticação com bcrypt
+- Migrations Laravel-style simplificadas
+- Seeder com 100 registros (50 produtos + 50 clientes)
+- Soft delete (deleted_at)
+- Views PHP com Bootstrap integrado
 
 ### Banco de Dados
-- Normalização de dados
-- Triggers para updated_at
-- Dados de exemplo
-- Scripts de inicialização
+- PostgreSQL com migrations automáticas
+- Soft delete em todas as tabelas
+- Dados de exemplo para testes
+- Inicialização automática via Docker
 
 ## 📦 Diferenciais
 
-1. **Docker Compose** completo com 3 serviços
-2. **Migrations** do Laravel + Scripts SQL
-3. **Seeders** para dados iniciais
-4. **Frontend** 100% JavaScript Vanilla (sem frameworks)
-5. **Máscaras** automáticas para documentos
-6. **Validações** no frontend e backend
-7. **CORS** configurado
-8. **Documentação** completa
+1. **Arquitetura Simplificada** - Views PHP + API em único Backend
+2. **Migrations Customizadas** - Sistema Laravel-style sem framework completo
+3. **Seeder Rico** - 100 registros de exemplo para testes realistas
+4. **Pesquisa + Ordenação + Paginação** - Client-side para performance
+5. **Soft Delete** - Exclusão lógica preservando dados
+6. **Docker Auto-Init** - Migrations executam automaticamente no startup
+7. **Validações Duplas** - Frontend (UX) + Backend (segurança)
+8. **Documentação Completa** - README, QUICKSTART, INSTALL, RESUMO
 
 ## 🗓️ Prazo
 
@@ -161,11 +159,14 @@ Ver instruções detalhadas em `INSTALL.md`
 
 ## 📝 Observações
 
-- Senha do usuário padrão usa bcrypt hash
-- Banco de dados PostgreSQL para melhor performance
-- Frontend sem dependências externas
+- Sistema 100% funcional com Docker
+- Senha do usuário usa bcrypt hash
+- PostgreSQL com soft delete nativo
+- Views PHP com Bootstrap 5
+- Pesquisa, ordenação e paginação client-side
+- 100 registros de exemplo (50 produtos + 50 clientes)
 - Código limpo e bem estruturado
-- Pronto para produção com ajustes mínimos
+- Pronto para uso
 
 ## 👤 Autor
 

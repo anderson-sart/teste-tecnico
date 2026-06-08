@@ -20,10 +20,7 @@ docker-compose up -d
 
 3. Aguarde alguns segundos para os serviços iniciarem
 
-4. Acesse:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000/api
-   - Banco de dados: localhost:5432
+4. Acesse: http://localhost:8000
 
 ## Credenciais de Acesso
 
@@ -32,70 +29,40 @@ docker-compose up -d
 
 ## Instalação Manual (sem Docker)
 
-### Backend (Laravel)
+### 1. Backend PHP
 
 1. Entre na pasta do backend:
 ```bash
 cd Backend
 ```
 
-2. Instale as dependências:
-```bash
-composer install
-```
-
-3. Configure o arquivo .env:
+2. Configure o arquivo .env:
 ```bash
 cp .env.example .env
 # Edite o .env com suas configurações de banco
 ```
 
-4. Gere a chave da aplicação:
+3. Execute as migrations e seeders:
 ```bash
-php artisan key:generate
+./artisan migrate
+./artisan seed
 ```
 
-5. Execute as migrations:
+4. Inicie o servidor:
 ```bash
-php artisan migrate
+php -S localhost:8000 index.php
 ```
 
-6. Execute os seeders:
-```bash
-php artisan db:seed
-```
-
-7. Inicie o servidor:
-```bash
-php artisan serve
-```
-
-### Frontend
-
-1. Entre na pasta do frontend:
-```bash
-cd Frontend
-```
-
-2. Inicie um servidor HTTP:
-```bash
-python3 -m http.server 3000
-```
-
-Ou simplesmente abra o arquivo `index.html` no navegador.
-
-### Banco de Dados PostgreSQL
+### 2. Banco de Dados PostgreSQL
 
 1. Crie o banco de dados:
 ```sql
 CREATE DATABASE softline_db;
+CREATE USER softline_user WITH PASSWORD 'softline_pass';
+GRANT ALL PRIVILEGES ON DATABASE softline_db TO softline_user;
 ```
 
-2. Execute os scripts SQL na pasta `Database/`:
-```bash
-psql -U seu_usuario -d softline_db -f Database/01-init-postgresql.sql
-psql -U seu_usuario -d softline_db -f Database/02-functions-postgresql.sql
-```
+2. Configure o .env com as credenciais do banco
 
 ## Testando a API
 
@@ -144,20 +111,24 @@ docker-compose restart backend
 
 ```
 teste-tecnico-softline/
-├── Backend/              # API Laravel
-│   ├── app/
-│   │   ├── Http/Controllers/
-│   │   └── Models/
-│   ├── database/
-│   │   ├── migrations/
-│   │   └── seeders/
-│   └── routes/
-├── Frontend/             # Interface web
-│   ├── css/
-│   ├── js/
-│   └── *.html
-├── Database/             # Scripts SQL
-└── docker-compose.yml
+└── Backend/                    # Aplicação PHP completa
+    ├── resources/views/        # Views PHP com Bootstrap 5
+    │   ├── layout.php          # Layout base
+    │   ├── login.php           # Tela de login
+    │   ├── produtos/           # Views de produtos
+    │   │   ├── index.php       # Listagem
+    │   │   ├── create.php      # Cadastro
+    │   │   └── edit.php        # Edição
+    │   └── clientes/           # Views de clientes
+    │       ├── index.php       # Listagem
+    │       ├── create.php      # Cadastro
+    │       └── edit.php        # Edição
+    ├── database/
+    │   ├── migrations/         # Estrutura das tabelas
+    │   └── seeders/            # Dados iniciais (100 registros)
+    ├── index.php               # Router + API
+    ├── artisan                 # CLI para migrations
+    └── Dockerfile
 ```
 
 ## Troubleshooting
@@ -165,14 +136,18 @@ teste-tecnico-softline/
 ### Backend não conecta ao banco
 - Verifique se o container do PostgreSQL está rodando: `docker ps`
 - Verifique as credenciais no arquivo `.env`
+- Execute manualmente: `docker exec -it softline_backend ./artisan migrate`
 
-### Frontend não conecta à API
-- Verifique se o backend está rodando na porta 8000
-- Verifique o CORS no arquivo `Backend/config/cors.php`
-
-### Erro de permissão no Laravel
+### Migrations não executam
 ```bash
-chmod -R 777 Backend/storage Backend/bootstrap/cache
+# Execute manualmente dentro do container
+docker exec -it softline_backend ./artisan migrate
+docker exec -it softline_backend ./artisan seed
+```
+
+### Erro de permissão
+```bash
+chmod -R 755 Backend/storage Backend/bootstrap/cache
 ```
 
 ## Suporte
