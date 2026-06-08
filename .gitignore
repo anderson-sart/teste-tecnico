@@ -1,0 +1,21 @@
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Backend - .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.cache
+appsettings.Development.json
+
+# Frontend
+node_modules/
+dist/
+.vscode/
+
+# Database
+*.bak
