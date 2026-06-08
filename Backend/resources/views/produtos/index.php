@@ -1,0 +1,109 @@
+<?php ob_start(); ?>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card shadow-sm">
+                <div class="card-header text-white d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0"><i class="bi bi-box-seam me-2"></i>Produtos</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-auto">
+                            <a href="/menu" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
+                            </a>
+                        </div>
+                        <div class="col-auto">
+                            <a href="/produtos/create" class="btn btn-success">
+                                <i class="bi bi-plus-circle"></i> Novo
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th class="d-none d-md-table-cell">Cód. Barras</th>
+                                    <th>Valor</th>
+                                    <th class="d-none d-lg-table-cell">P. Bruto</th>
+                                    <th class="d-none d-lg-table-cell">P. Líquido</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="viewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalContent"></div>
+        </div>
+    </div>
+</div>
+<?php $content = ob_get_clean(); ob_start(); ?>
+<script>
+async function loadProdutos() {
+    const response = await fetch('/api/produtos');
+    const produtos = await response.json();
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = produtos.map(p => `
+        <tr>
+            <td>${p.codigo}</td>
+            <td>${p.descricao}</td>
+            <td class="d-none d-md-table-cell">${p.codigo_barras || '-'}</td>
+            <td class="text-nowrap">R$ ${parseFloat(p.valor_venda).toFixed(2)}</td>
+            <td class="d-none d-lg-table-cell">${parseFloat(p.peso_bruto).toFixed(3)} kg</td>
+            <td class="d-none d-lg-table-cell">${parseFloat(p.peso_liquido).toFixed(3)} kg</td>
+            <td>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-info" onclick="view(${p.codigo})" title="Ver">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <a href="/produtos/edit/${p.codigo}" class="btn btn-warning" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <button class="btn btn-danger" onclick="del(${p.codigo})" title="Deletar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function view(id) {
+    const response = await fetch('/api/produtos/' + id);
+    const p = await response.json();
+    document.getElementById('modalContent').innerHTML = `
+        <div class="row g-3">
+            <div class="col-6"><strong>Código:</strong></div><div class="col-6">${p.codigo}</div>
+            <div class="col-6"><strong>Descrição:</strong></div><div class="col-6">${p.descricao}</div>
+            <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6">${p.codigo_barras || '-'}</div>
+            <div class="col-6"><strong>Valor:</strong></div><div class="col-6">R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>
+            <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6">${parseFloat(p.peso_bruto).toFixed(3)} kg</div>
+            <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6">${parseFloat(p.peso_liquido).toFixed(3)} kg</div>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('viewModal')).show();
+}
+
+async function del(id) {
+    if (!confirm('Deletar produto?')) return;
+    await fetch('/api/produtos/' + id, {method: 'DELETE'});
+    loadProdutos();
+}
+
+loadProdutos();
+</script>
+<?php $scripts = ob_get_clean(); $title = 'Produtos'; include __DIR__ . '/../layout.php'; ?>
