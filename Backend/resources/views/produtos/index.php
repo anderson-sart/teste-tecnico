@@ -269,6 +269,8 @@ document.getElementById('btnDeleteSelected').addEventListener('click', async fun
             await Promise.all(ids.map(id => fetch('/api/produtos/' + id, {method: 'DELETE'})));
             showToast(`${count} produto(s) excluído(s) com sucesso!`, 'success');
             document.getElementById('selectAll').checked = false;
+            document.getElementById('btnDeleteSelected').style.display = 'none';
+            document.getElementById('selectedCount').textContent = '0';
             loadProdutos(true);
         } catch (error) {
             showToast('Erro ao excluir produtos', 'error');
