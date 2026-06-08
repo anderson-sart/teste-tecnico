@@ -9,7 +9,7 @@ class ClienteController extends Controller
 {
     public function index()
     {
-        return response()->json(Cliente::orderBy('Codigo', 'desc')->get());
+        return response()->json(Cliente::orderBy('codigo', 'desc')->get());
     }
 
     public function show($id)
@@ -24,10 +24,10 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'Nome' => 'required|max:60',
-            'Fantasia' => 'nullable|max:100',
-            'Documento' => 'required|max:18',
-            'Endereco' => 'nullable'
+            'nome' => 'required|max:60',
+            'fantasia' => 'nullable|max:100',
+            'documento' => 'required|max:18',
+            'endereco' => 'nullable'
         ]);
 
         $cliente = Cliente::create($validated);
@@ -42,10 +42,10 @@ class ClienteController extends Controller
         }
 
         $validated = $request->validate([
-            'Nome' => 'required|max:60',
-            'Fantasia' => 'nullable|max:100',
-            'Documento' => 'required|max:18',
-            'Endereco' => 'nullable'
+            'nome' => 'required|max:60',
+            'fantasia' => 'nullable|max:100',
+            'documento' => 'required|max:18',
+            'endereco' => 'nullable'
         ]);
 
         $cliente->update($validated);

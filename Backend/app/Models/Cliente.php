@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
-    protected $table = 'Clientes';
-    protected $primaryKey = 'Codigo';
-    public $timestamps = false;
+    protected $table = 'clientes';
+    protected $primaryKey = 'codigo';
 
     protected $fillable = [
-        'Nome',
-        'Fantasia',
-        'Documento',
-        'Endereco'
+        'nome',
+        'fantasia',
+        'documento',
+        'endereco'
     ];
 }

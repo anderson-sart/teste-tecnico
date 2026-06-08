@@ -3,19 +3,27 @@
 *~
 .DS_Store
 
-# Backend - .NET
-bin/
-obj/
-*.user
-*.suo
-.vs/
-*.cache
-appsettings.Development.json
+# Laravel Backend
+Backend/vendor/
+Backend/.env
+Backend/storage/*.key
+Backend/storage/logs/
+Backend/storage/framework/cache/*
+Backend/storage/framework/sessions/*
+Backend/storage/framework/views/*
+Backend/bootstrap/cache/*
+Backend/.phpunit.result.cache
+Backend/composer.lock
 
 # Frontend
-node_modules/
-dist/
+Frontend/node_modules/
+Frontend/dist/
 .vscode/
 
 # Database
 *.bak
+Database/*.log
+
+# Docker
+.docker/
+docker-compose.override.yml

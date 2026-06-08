@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produto - Softline</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="content-box">
+            <h1 id="formTitle">Cadastro de Produto</h1>
+            <button class="btn-back" onclick="window.location.href='produtos.html'">Voltar</button>
+            
+            <form id="produtoForm">
+                <div class="form-group">
+                    <label>Descrição (máx 60 caracteres) *</label>
+                    <input type="text" id="descricao" maxlength="60" required>
+                </div>
+                <div class="form-group">
+                    <label>Código de Barras (máx 14 caracteres)</label>
+                    <input type="text" id="codigo_barras" maxlength="14">
+                </div>
+                <div class="form-group">
+                    <label>Valor de Venda *</label>
+                    <input type="number" id="valor_venda" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Peso Bruto (kg) *</label>
+                    <input type="number" id="peso_bruto" step="0.001" required>
+                </div>
+                <div class="form-group">
+                    <label>Peso Líquido (kg) *</label>
+                    <input type="number" id="peso_liquido" step="0.001" required>
+                </div>
+                <button type="submit">Salvar</button>
+                <div id="message"></div>
+            </form>
+        </div>
+    </div>
+    <script src="js/produto-form.js"></script>
+</body>
+</html>

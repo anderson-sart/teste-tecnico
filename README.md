@@ -6,7 +6,8 @@ Sistema de cadastro de Produtos e Clientes com autenticação de usuário.
 ## Tecnologias Utilizadas
 - **Front-end**: HTML, CSS, JavaScript (Vanilla JS / jQuery)
 - **Back-end**: PHP (Laravel)
-- **Banco de Dados**: SQL Server
+- **Banco de Dados**: PostgreSQL
+- **Infraestrutura**: Docker & Docker Compose
 
 ## Estrutura do Projeto
 ```
@@ -42,19 +43,29 @@ teste-tecnico-softline/
 
 ## Como Executar
 
-### Banco de Dados
-1. Execute os scripts na pasta `Database/` no SQL Server
+### Usando Docker (Recomendado)
+```bash
+docker-compose up -d
+```
+Acesse o backend em: http://localhost:8000
+Acesse o frontend em: http://localhost:3000
 
-### Backend
+### Manualmente
+
+#### Banco de Dados
+1. Execute os scripts na pasta `Database/` no PostgreSQL
+
+#### Backend
 1. Instale o Composer: https://getcomposer.org/
 2. Navegue até a pasta `Backend/`
 3. Execute `composer install`
-4. Configure o `.env` com a conexão do SQL Server
-5. Execute `php artisan serve`
+4. Configure o `.env` com a conexão do PostgreSQL
+5. Execute `php artisan migrate`
+6. Execute `php artisan serve`
 
-### Frontend
+#### Frontend
 1. Abra o arquivo `Frontend/index.html` no navegador
-   ou configure um servidor web local
+   ou use: `python3 -m http.server 3000`
 
 ## Prazo de Entrega
 14/06/2026 às 23:59

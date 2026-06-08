@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: softline_postgres
+    environment:
+      POSTGRES_DB: softline_db
+      POSTGRES_USER: softline_user
+      POSTGRES_PASSWORD: softline_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./Database:/docker-entrypoint-initdb.d
+    networks:
+      - softline_network
+
+  backend:
+    build: ./Backend
+    container_name: softline_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Backend:/var/www/html
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: softline_db
+      DB_USERNAME: softline_user
+      DB_PASSWORD: softline_pass
+    networks:
+      - softline_network
+
+  frontend:
+    image: nginx:alpine
+    container_name: softline_frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./Frontend:/usr/share/nginx/html
+    networks:
+      - softline_network
+
+volumes:
+  postgres_data:
+
+networks:
+  softline_network:
+    driver: bridge

@@ -6,21 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Produto extends Model
 {
-    protected $table = 'Produtos';
-    protected $primaryKey = 'Codigo';
-    public $timestamps = false;
+    protected $table = 'produtos';
+    protected $primaryKey = 'codigo';
 
     protected $fillable = [
-        'Descricao',
-        'CodigoBarras',
-        'ValorVenda',
-        'PesoBruto',
-        'PesoLiquido'
+        'descricao',
+        'codigo_barras',
+        'valor_venda',
+        'peso_bruto',
+        'peso_liquido'
     ];
 
     protected $casts = [
-        'ValorVenda' => 'decimal:2',
-        'PesoBruto' => 'decimal:3',
-        'PesoLiquido' => 'decimal:3',
+        'valor_venda' => 'decimal:2',
+        'peso_bruto' => 'decimal:3',
+        'peso_liquido' => 'decimal:3',
     ];
 }

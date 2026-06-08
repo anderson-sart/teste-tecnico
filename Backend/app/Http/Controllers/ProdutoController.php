@@ -9,7 +9,7 @@ class ProdutoController extends Controller
 {
     public function index()
     {
-        return response()->json(Produto::orderBy('Codigo', 'desc')->get());
+        return response()->json(Produto::orderBy('codigo', 'desc')->get());
     }
 
     public function show($id)
@@ -24,11 +24,11 @@ class ProdutoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'Descricao' => 'required|max:60',
-            'CodigoBarras' => 'nullable|max:14',
-            'ValorVenda' => 'required|numeric',
-            'PesoBruto' => 'required|numeric',
-            'PesoLiquido' => 'required|numeric'
+            'descricao' => 'required|max:60',
+            'codigo_barras' => 'nullable|max:14',
+            'valor_venda' => 'required|numeric',
+            'peso_bruto' => 'required|numeric',
+            'peso_liquido' => 'required|numeric'
         ]);
 
         $produto = Produto::create($validated);
@@ -43,11 +43,11 @@ class ProdutoController extends Controller
         }
 
         $validated = $request->validate([
-            'Descricao' => 'required|max:60',
-            'CodigoBarras' => 'nullable|max:14',
-            'ValorVenda' => 'required|numeric',
-            'PesoBruto' => 'required|numeric',
-            'PesoLiquido' => 'required|numeric'
+            'descricao' => 'required|max:60',
+            'codigo_barras' => 'nullable|max:14',
+            'valor_venda' => 'required|numeric',
+            'peso_bruto' => 'required|numeric',
+            'peso_liquido' => 'required|numeric'
         ]);
 
         $produto->update($validated);

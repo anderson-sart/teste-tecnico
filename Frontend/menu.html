@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Softline</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="content-box">
+            <h1>Bem-vindo ao Sistema</h1>
+            <div class="menu">
+                <button onclick="window.location.href='produtos.html'">Produtos</button>
+                <button onclick="window.location.href='clientes.html'">Clientes</button>
+            </div>
+            <button onclick="logout()" style="background: #e74c3c">Sair</button>
+        </div>
+    </div>
+    <script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
