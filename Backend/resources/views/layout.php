@@ -103,14 +103,17 @@
             `;
             
             const container = document.getElementById('toastContainer');
-            const div = document.createElement('div');
-            div.innerHTML = toastHtml;
-            container.appendChild(div.firstElementChild);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = toastHtml.trim();
+            const toastElement = wrapper.firstChild;
+            container.appendChild(toastElement);
             
-            const toast = new bootstrap.Toast(div.firstElementChild, { delay: 3000 });
+            const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
             toast.show();
             
-            div.firstElementChild.addEventListener('hidden.bs.toast', () => div.firstElementChild.remove());
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
         }
         
         // Loading Spinner
