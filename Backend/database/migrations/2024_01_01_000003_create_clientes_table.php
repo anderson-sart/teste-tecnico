@@ -1,25 +1,13 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-return new class extends Migration
-{
-    public function up()
-    {
-        Schema::create('clientes', function (Blueprint $table) {
-            $table->id('codigo');
-            $table->string('nome', 60);
-            $table->string('fantasia', 100);
-            $table->string('documento', 18);
-            $table->text('endereco');
-            $table->timestamps();
-        });
-    }
-
-    public function down()
-    {
-        Schema::dropIfExists('clientes');
-    }
-};
+$pdo->exec("
+    CREATE TABLE IF NOT EXISTS clientes (
+        codigo SERIAL PRIMARY KEY,
+        nome VARCHAR(60) NOT NULL,
+        fantasia VARCHAR(100),
+        documento VARCHAR(18) NOT NULL,
+        endereco TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+");

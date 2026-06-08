@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
 
 COPY . .
 
+RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "."]
+CMD ["./docker-entrypoint.sh"]

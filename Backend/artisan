@@ -1,19 +1,47 @@
 #!/usr/bin/env php
 <?php
 
-define('LARAVEL_START', microtime(true));
+if ($argc < 2) {
+    echo "Usage: php artisan [command]\n";
+    exit(1);
+}
 
-require __DIR__.'/vendor/autoload.php';
+$command = $argv[1];
 
-$app = require_once __DIR__.'/bootstrap/app.php';
+$db_host = getenv('DB_HOST') ?: 'db';
+$db_name = getenv('DB_DATABASE') ?: 'softline_db';
+$db_user = getenv('DB_USERNAME') ?: 'softline_user';
+$db_pass = getenv('DB_PASSWORD') ?: 'softline_pass';
 
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+try {
+    $pdo = new PDO("pgsql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    echo "Database connection failed\n";
+    exit(1);
+}
 
-$status = $kernel->handle(
-    $input = new Symfony\Component\Console\Input\ArgvInput,
-    new Symfony\Component\Console\Output\ConsoleOutput
-);
+if ($command === 'migrate') {
+    $migrations = glob(__DIR__ . '/database/migrations/*.php');
+    sort($migrations);
+    
+    foreach ($migrations as $file) {
+        echo "Running: " . basename($file) . "\n";
+        include $file;
+        $class = new class {};
+        if (method_exists($class, 'up')) {
+            $class->up();
+        }
+    }
+    
+    echo "Migrations completed\n";
+}
 
-$kernel->terminate($input, $status);
-
-exit($status);
+if ($command === 'db:seed') {
+    if (file_exists(__DIR__ . '/database/seeders/DatabaseSeeder.php')) {
+        include __DIR__ . '/database/seeders/DatabaseSeeder.php';
+        $seeder = new Database\Seeders\DatabaseSeeder();
+        $seeder->run();
+        echo "Seeding completed\n";
+    }
+}
