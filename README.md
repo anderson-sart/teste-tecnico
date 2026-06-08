@@ -5,7 +5,7 @@ Sistema de cadastro de Produtos e Clientes com autenticação de usuário.
 
 ## Tecnologias Utilizadas
 - **Front-end**: HTML, CSS, JavaScript (Vanilla JS / jQuery)
-- **Back-end**: C# (ASP.NET Core)
+- **Back-end**: PHP (Laravel)
 - **Banco de Dados**: SQL Server
 
 ## Estrutura do Projeto
@@ -46,9 +46,11 @@ teste-tecnico-softline/
 1. Execute os scripts na pasta `Database/` no SQL Server
 
 ### Backend
-1. Navegue até a pasta `Backend/`
-2. Execute `dotnet restore`
-3. Execute `dotnet run`
+1. Instale o Composer: https://getcomposer.org/
+2. Navegue até a pasta `Backend/`
+3. Execute `composer install`
+4. Configure o `.env` com a conexão do SQL Server
+5. Execute `php artisan serve`
 
 ### Frontend
 1. Abra o arquivo `Frontend/index.html` no navegador
