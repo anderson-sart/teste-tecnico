@@ -3,6 +3,24 @@
 ## Descrição
 Sistema de cadastro de Produtos e Clientes com autenticação de usuário.
 
+## 🚀 Quick Start
+
+```bash
+git clone git@github.com:anderson-sart/teste-tecnico.git
+cd teste-tecnico
+docker-compose up -d
+```
+
+Acesse: http://localhost:3000  
+**Login**: admin | **Senha**: admin123
+
+## 📚 Documentação
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Guia rápido de 3 passos
+- **[INSTALL.md](INSTALL.md)** - Instalação detalhada (Docker e Manual)
+- **[RESUMO.md](RESUMO.md)** - Resumo completo do projeto
+- **[Database/README-POSTGRESQL.md](Database/README-POSTGRESQL.md)** - Informações do banco
+
 ## Tecnologias Utilizadas
 - **Front-end**: HTML, CSS, JavaScript (Vanilla JS / jQuery)
 - **Back-end**: PHP (Laravel)
