@@ -201,7 +201,6 @@ function applyFilters() {
     
     renderPage(1);
 }
-});
 
 document.getElementById('perPageSelect').addEventListener('change', function() {
     perPage = parseInt(this.value);
