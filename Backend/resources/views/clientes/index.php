@@ -179,21 +179,23 @@ document.getElementById('search').addEventListener('input', function(e) {
 });
 
 function applyFilters() {
-    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
+    const searchInput = document.getElementById('search').value.trim().toLowerCase();
+    const searchTerm = searchInput.replace(/\D/g, ''); // Apenas números
     const docType = document.getElementById('docType').value;
     
     filteredClientes = allClientes.filter(c => {
-        const matchSearch = !searchTerm || 
-            c.nome.toLowerCase().includes(searchTerm) ||
-            c.codigo.toString().includes(searchTerm) ||
-            (c.fantasia && c.fantasia.toLowerCase().includes(searchTerm)) ||
-            c.documento.includes(searchTerm);
+        const docOnly = c.documento.replace(/\D/g, '');
+        const matchSearch = !searchInput || 
+            c.nome.toLowerCase().includes(searchInput) ||
+            c.codigo.toString().includes(searchInput) ||
+            (c.fantasia && c.fantasia.toLowerCase().includes(searchInput)) ||
+            docOnly.includes(searchTerm);
         
         let matchDocType = true;
         if (docType === 'cpf') {
-            matchDocType = c.documento.replace(/\D/g, '').length === 11;
+            matchDocType = docOnly.length === 11;
         } else if (docType === 'cnpj') {
-            matchDocType = c.documento.replace(/\D/g, '').length === 14;
+            matchDocType = docOnly.length === 14;
         }
         
         return matchSearch && matchDocType;
