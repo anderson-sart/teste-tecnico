@@ -1,5 +1,12 @@
 <?php ob_start(); ?>
 <div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/menu"><i class="bi bi-house-door"></i> Início</a></li>
+            <li class="breadcrumb-item"><a href="/produtos">Produtos</a></li>
+            <li class="breadcrumb-item active">Formulário</li>
+        </ol>
+    </nav>
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8 col-xl-6">
             <div class="card shadow-sm">

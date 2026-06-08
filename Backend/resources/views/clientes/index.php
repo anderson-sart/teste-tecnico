@@ -1,5 +1,11 @@
 <?php ob_start(); ?>
 <div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/menu"><i class="bi bi-house-door"></i> Início</a></li>
+            <li class="breadcrumb-item active">Clientes</li>
+        </ol>
+    </nav>
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <div class="card shadow-sm">
@@ -34,8 +40,36 @@
                         <div class="col-12 col-md">
                             <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
                         </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                                <i class="bi bi-funnel"></i> Filtros
+                            </button>
+                        </div>
                     </div>
-                    <div class="table-responsive">
+                    
+                    <!-- Filtros Avançados -->
+                    <div class="collapse mt-3" id="advancedFilters">
+                        <div class="card card-body">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small">Tipo de Documento</label>
+                                    <select class="form-select form-select-sm" id="docType">
+                                        <option value="">Todos</option>
+                                        <option value="cpf">CPF</option>
+                                        <option value="cnpj">CNPJ</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small">&nbsp;</label>
+                                    <button class="btn btn-sm btn-primary w-100" onclick="applyFilters()">
+                                        <i class="bi bi-check2"></i> Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive mt-3">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -141,14 +175,32 @@ function sortBy(field) {
 }
 
 document.getElementById('search').addEventListener('input', function(e) {
-    const term = e.target.value.trim().toLowerCase();
-    filteredClientes = allClientes.filter(c => 
-        c.nome.toLowerCase().includes(term) ||
-        c.codigo.toString().includes(term) ||
-        (c.fantasia && c.fantasia.toLowerCase().includes(term)) ||
-        c.documento.includes(term)
-    );
+    applyFilters();
+});
+
+function applyFilters() {
+    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
+    const docType = document.getElementById('docType').value;
+    
+    filteredClientes = allClientes.filter(c => {
+        const matchSearch = !searchTerm || 
+            c.nome.toLowerCase().includes(searchTerm) ||
+            c.codigo.toString().includes(searchTerm) ||
+            (c.fantasia && c.fantasia.toLowerCase().includes(searchTerm)) ||
+            c.documento.includes(searchTerm);
+        
+        let matchDocType = true;
+        if (docType === 'cpf') {
+            matchDocType = c.documento.replace(/\D/g, '').length === 11;
+        } else if (docType === 'cnpj') {
+            matchDocType = c.documento.replace(/\D/g, '').length === 14;
+        }
+        
+        return matchSearch && matchDocType;
+    });
+    
     renderPage(1);
+}
 });
 
 document.getElementById('perPageSelect').addEventListener('change', function() {

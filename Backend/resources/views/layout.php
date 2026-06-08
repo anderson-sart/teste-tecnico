@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -86,6 +86,10 @@
     <?= $content ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        
         // Toast Notification System
         function showToast(message, type = 'success') {
             const icons = { success: 'check-circle', error: 'x-circle', warning: 'exclamation-triangle', info: 'info-circle' };
@@ -206,6 +210,38 @@
                 });
             });
         }
+        
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+F - Focus search
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                const searchInput = document.getElementById('search');
+                if (searchInput) searchInput.focus();
+            }
+            
+            // Ctrl+N - New record
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                const newBtn = document.querySelector('a[href*="/create"]');
+                if (newBtn) window.location.href = newBtn.href;
+            }
+            
+            // ESC - Close modals
+            if (e.key === 'Escape') {
+                const openModals = document.querySelectorAll('.modal.show');
+                openModals.forEach(modal => {
+                    bootstrap.Modal.getInstance(modal)?.hide();
+                });
+            }
+            
+            // Ctrl+S - Save form
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+            }
+        });
     </script>
     <?= $scripts ?? '' ?>
 </body>

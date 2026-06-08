@@ -1,5 +1,11 @@
 <?php ob_start(); ?>
 <div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/menu"><i class="bi bi-house-door"></i> Início</a></li>
+            <li class="breadcrumb-item active">Produtos</li>
+        </ol>
+    </nav>
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
             <div class="card shadow-sm">
@@ -34,8 +40,36 @@
                         <div class="col-12 col-md">
                             <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
                         </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                                <i class="bi bi-funnel"></i> Filtros
+                            </button>
+                        </div>
                     </div>
-                    <div class="table-responsive">
+                    
+                    <!-- Filtros Avançados -->
+                    <div class="collapse mt-3" id="advancedFilters">
+                        <div class="card card-body">
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label small">Preço Mínimo</label>
+                                    <input type="number" class="form-control form-control-sm" id="priceMin" step="0.01" placeholder="R$ 0,00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">Preço Máximo</label>
+                                    <input type="number" class="form-control form-control-sm" id="priceMax" step="0.01" placeholder="R$ 9999,99">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small">&nbsp;</label>
+                                    <button class="btn btn-sm btn-primary w-100" onclick="applyFilters()">
+                                        <i class="bi bi-check2"></i> Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive mt-3">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -140,14 +174,28 @@ function sortBy(field) {
 }
 
 document.getElementById('search').addEventListener('input', function(e) {
-    const term = e.target.value.trim().toLowerCase();
-    filteredProdutos = allProdutos.filter(p => 
-        p.descricao.toLowerCase().includes(term) ||
-        p.codigo.toString().includes(term) ||
-        (p.codigo_barras && p.codigo_barras.includes(term))
-    );
-    renderPage(1);
+    applyFilters();
 });
+
+function applyFilters() {
+    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
+    const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+    const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
+    
+    filteredProdutos = allProdutos.filter(p => {
+        const matchSearch = !searchTerm || 
+            p.descricao.toLowerCase().includes(searchTerm) ||
+            p.codigo.toString().includes(searchTerm) ||
+            (p.codigo_barras && p.codigo_barras.includes(searchTerm));
+        
+        const matchPrice = parseFloat(p.valor_venda) >= priceMin && 
+                          parseFloat(p.valor_venda) <= priceMax;
+        
+        return matchSearch && matchPrice;
+    });
+    
+    renderPage(1);
+}
 
 document.getElementById('perPageSelect').addEventListener('change', function() {
     perPage = parseInt(this.value);
