@@ -18,15 +18,24 @@
                                 <i class="bi bi-plus-circle"></i> Novo
                             </a>
                         </div>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Descrição</th>
+                                    <th style="cursor:pointer" onclick="sortBy('codigo')">
+                                        Código <i class="bi bi-arrow-down-up"></i>
+                                    </th>
+                                    <th style="cursor:pointer" onclick="sortBy('descricao')">
+                                        Descrição <i class="bi bi-arrow-down-up"></i>
+                                    </th>
                                     <th class="d-none d-md-table-cell">Cód. Barras</th>
-                                    <th>Valor</th>
+                                    <th style="cursor:pointer" onclick="sortBy('valor_venda')">
+                                        Valor <i class="bi bi-arrow-down-up"></i>
+                                    </th>
                                     <th class="d-none d-lg-table-cell">P. Bruto</th>
                                     <th class="d-none d-lg-table-cell">P. Líquido</th>
                                     <th>Ações</th>
@@ -59,18 +68,59 @@
 let currentPage = 1;
 const perPage = 10;
 let allProdutos = [];
+let filteredProdutos = [];
+let sortField = 'codigo';
+let sortDir = 'desc';
 
 async function loadProdutos() {
     const response = await fetch('/api/produtos');
     allProdutos = await response.json();
+    filteredProdutos = allProdutos;
     renderPage(1);
 }
+
+function sortBy(field) {
+    if (sortField === field) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDir = 'asc';
+    }
+    
+    filteredProdutos.sort((a, b) => {
+        let aVal = a[field];
+        let bVal = b[field];
+        
+        if (typeof aVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+        
+        if (sortDir === 'asc') {
+            return aVal > bVal ? 1 : -1;
+        } else {
+            return aVal < bVal ? 1 : -1;
+        }
+    });
+    
+    renderPage(1);
+}
+
+document.getElementById('search').addEventListener('input', function(e) {
+    const term = e.target.value.trim().toLowerCase();
+    filteredProdutos = allProdutos.filter(p => 
+        p.descricao.toLowerCase().includes(term) ||
+        p.codigo.toString().includes(term) ||
+        (p.codigo_barras && p.codigo_barras.includes(term))
+    );
+    renderPage(1);
+});
 
 function renderPage(page) {
     currentPage = page;
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const produtos = allProdutos.slice(start, end);
+    const produtos = filteredProdutos.slice(start, end);
     
     const tbody = document.getElementById('tbody');
     tbody.innerHTML = produtos.map(p => `
@@ -101,7 +151,7 @@ function renderPage(page) {
 }
 
 function renderPagination() {
-    const totalPages = Math.ceil(allProdutos.length / perPage);
+    const totalPages = Math.ceil(filteredProdutos.length / perPage);
     const pagination = document.getElementById('pagination');
     
     let html = '';

@@ -18,13 +18,20 @@
                                 <i class="bi bi-plus-circle"></i> Novo
                             </a>
                         </div>
+                        <div class="col-12 col-md">
+                            <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Código</th>
-                                    <th>Nome</th>
+                                    <th style="cursor:pointer" onclick="sortBy('codigo')">
+                                        Código <i class="bi bi-arrow-down-up"></i>
+                                    </th>
+                                    <th style="cursor:pointer" onclick="sortBy('nome')">
+                                        Nome <i class="bi bi-arrow-down-up"></i>
+                                    </th>
                                     <th class="d-none d-md-table-cell">Fantasia</th>
                                     <th>Documento</th>
                                     <th>Ações</th>
@@ -57,6 +64,9 @@
 let currentPage = 1;
 const perPage = 10;
 let allClientes = [];
+let filteredClientes = [];
+let sortField = 'codigo';
+let sortDir = 'desc';
 
 function formatDoc(doc) {
     const n = doc.replace(/\D/g, '');
@@ -67,14 +77,53 @@ function formatDoc(doc) {
 async function loadClientes() {
     const response = await fetch('/api/clientes');
     allClientes = await response.json();
+    filteredClientes = allClientes;
     renderPage(1);
 }
+
+function sortBy(field) {
+    if (sortField === field) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDir = 'asc';
+    }
+    
+    filteredClientes.sort((a, b) => {
+        let aVal = a[field];
+        let bVal = b[field];
+        
+        if (typeof aVal === 'string') {
+            aVal = aVal.toLowerCase();
+            bVal = bVal.toLowerCase();
+        }
+        
+        if (sortDir === 'asc') {
+            return aVal > bVal ? 1 : -1;
+        } else {
+            return aVal < bVal ? 1 : -1;
+        }
+    });
+    
+    renderPage(1);
+}
+
+document.getElementById('search').addEventListener('input', function(e) {
+    const term = e.target.value.trim().toLowerCase();
+    filteredClientes = allClientes.filter(c => 
+        c.nome.toLowerCase().includes(term) ||
+        c.codigo.toString().includes(term) ||
+        (c.fantasia && c.fantasia.toLowerCase().includes(term)) ||
+        c.documento.includes(term)
+    );
+    renderPage(1);
+});
 
 function renderPage(page) {
     currentPage = page;
     const start = (page - 1) * perPage;
     const end = start + perPage;
-    const clientes = allClientes.slice(start, end);
+    const clientes = filteredClientes.slice(start, end);
     
     const tbody = document.getElementById('tbody');
     tbody.innerHTML = clientes.map(c => `
@@ -103,7 +152,7 @@ function renderPage(page) {
 }
 
 function renderPagination() {
-    const totalPages = Math.ceil(allClientes.length / perPage);
+    const totalPages = Math.ceil(filteredClientes.length / perPage);
     const pagination = document.getElementById('pagination');
     
     let html = '';
