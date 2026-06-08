@@ -23,6 +23,14 @@
                                 <i class="bi bi-trash"></i> Excluir Selecionados (<span id="selectedCount">0</span>)
                             </button>
                         </div>
+                        <div class="col-auto">
+                            <select class="form-select" id="perPageSelect" style="width:auto">
+                                <option value="10">10 por página</option>
+                                <option value="25">25 por página</option>
+                                <option value="50">50 por página</option>
+                                <option value="100">100 por página</option>
+                            </select>
+                        </div>
                         <div class="col-12 col-md">
                             <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
                         </div>
@@ -70,7 +78,7 @@
 <?php $content = ob_get_clean(); ob_start(); ?>
 <script>
 let currentPage = 1;
-const perPage = 10;
+let perPage = 10;
 let allClientes = [];
 let filteredClientes = [];
 let sortField = 'codigo';
@@ -140,6 +148,12 @@ document.getElementById('search').addEventListener('input', function(e) {
         (c.fantasia && c.fantasia.toLowerCase().includes(term)) ||
         c.documento.includes(term)
     );
+    renderPage(1);
+});
+
+document.getElementById('perPageSelect').addEventListener('change', function() {
+    perPage = parseInt(this.value);
+    currentPage = 1;
     renderPage(1);
 });
 
