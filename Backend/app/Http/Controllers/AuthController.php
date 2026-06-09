@@ -1,15 +1,11 @@
 <?php
 
 class AuthController {
-    private $pdo;
-    
-    public function __construct($pdo) {
-        $this->pdo = $pdo;
-    }
     
     public function login() {
         $data = json_decode(file_get_contents('php://input'), true);
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE username = ?');
+        $pdo = DB::connection();
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
         $stmt->execute([$data['username']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         

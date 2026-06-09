@@ -3,6 +3,7 @@ session_start();
 
 require __DIR__ . '/blade.php';
 require __DIR__ . '/router.php';
+require __DIR__ . '/database/DB.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -32,27 +33,10 @@ if (!str_starts_with($path, '/api')) {
 if (str_starts_with($path, '/api')) {
     header('Content-Type: application/json');
     
-    // Database connection
-    $db_host = getenv('DB_HOST') ?: 'db';
-    $db_name = getenv('DB_DATABASE') ?: 'softline_db';
-    $db_user = getenv('DB_USERNAME') ?: 'softline_user';
-    $db_pass = getenv('DB_PASSWORD') ?: 'softline_pass';
-
-    try {
-        $pdo = new PDO("pgsql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        echo json_encode(['error' => 'Database connection failed']);
-        exit;
-    }
-
     // Load Controllers
     require_once __DIR__ . '/app/Http/Controllers/AuthController.php';
     require_once __DIR__ . '/app/Http/Controllers/ProdutoController.php';
     require_once __DIR__ . '/app/Http/Controllers/ClienteController.php';
-
-    // Set PDO context for routes
-    $router->setContext($pdo);
     
     // Load API Routes
     $apiPath = str_replace('/api', '', $path);
