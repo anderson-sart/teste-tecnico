@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require __DIR__ . '/blade.php';
 
 header('Access-Control-Allow-Origin: *');
@@ -12,15 +14,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
+// Helper function to check authentication
+function isAuthenticated() {
+    return isset($_SESSION['user_id']);
+}
+
+// Helper function to require authentication
+function requireAuth() {
+    if (!isAuthenticated()) {
+        header('Location: /');
+        exit;
+    }
+}
+
 // VIEW ROUTES
-if ($path === '/' || $path === '/login') { render('login'); exit; }
-if ($path === '/menu') { render('menu'); exit; }
-if ($path === '/produtos') { render('produtos/index'); exit; }
-if ($path === '/produtos/create') { render('produtos/form'); exit; }
-if (preg_match('#^/produtos/edit/(\d+)$#', $path)) { render('produtos/form'); exit; }
-if ($path === '/clientes') { render('clientes/index'); exit; }
-if ($path === '/clientes/create') { render('clientes/form'); exit; }
-if (preg_match('#^/clientes/edit/(\d+)$#', $path)) { render('clientes/form'); exit; }
+if ($path === '/' || $path === '/login') { 
+    // Se já está logado, redireciona para menu
+    if (isAuthenticated()) {
+        header('Location: /menu');
+        exit;
+    }
+    render('login'); 
+    exit; 
+}
+
+// Rotas protegidas - requerem autenticação
+if ($path === '/menu') { requireAuth(); render('menu'); exit; }
+if ($path === '/produtos') { requireAuth(); render('produtos/index'); exit; }
+if ($path === '/produtos/create') { requireAuth(); render('produtos/form'); exit; }
+if (preg_match('#^/produtos/edit/(\d+)$#', $path)) { requireAuth(); render('produtos/form'); exit; }
+if ($path === '/clientes') { requireAuth(); render('clientes/index'); exit; }
+if ($path === '/clientes/create') { requireAuth(); render('clientes/form'); exit; }
+if (preg_match('#^/clientes/edit/(\d+)$#', $path)) { requireAuth(); render('clientes/form'); exit; }
+
+// Logout
+if ($path === '/logout') {
+    session_destroy();
+    header('Location: /');
+    exit;
+}
 
 // API ROUTES
 if (str_starts_with($path, '/api')) {
@@ -50,10 +82,19 @@ if (str_starts_with($path, '/api')) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && password_verify($data['password'], $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
             echo json_encode(['success' => true, 'username' => $user['username']]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Usuário ou senha inválidos']);
         }
+        exit;
+    }
+    
+    // LOGOUT
+    if ($path === '/logout' && $method === 'POST') {
+        session_destroy();
+        echo json_encode(['success' => true]);
         exit;
     }
 

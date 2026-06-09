@@ -98,7 +98,10 @@ async function loadStats() {
 
 function logout() {
     localStorage.clear();
-    window.location.href = '/';
+    fetch('/api/logout', { method: 'POST' })
+        .finally(() => {
+            window.location.href = '/';
+        });
 }
 
 function toggleTheme() {
