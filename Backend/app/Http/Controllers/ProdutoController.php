@@ -11,13 +11,11 @@ class ProdutoController {
     }
     
     public function store() {
-        $data = json_decode(file_get_contents('php://input'), true);
-        return Produto::create($data);
+        return Produto::create(Request::all());
     }
     
     public function update($id) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        return Produto::update($id, $data);
+        return Produto::update($id, Request::all());
     }
     
     public function destroy($id) {

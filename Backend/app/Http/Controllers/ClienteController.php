@@ -11,13 +11,11 @@ class ClienteController {
     }
     
     public function store() {
-        $data = json_decode(file_get_contents('php://input'), true);
-        return Cliente::create($data);
+        return Cliente::create(Request::all());
     }
     
     public function update($id) {
-        $data = json_decode(file_get_contents('php://input'), true);
-        return Cliente::update($id, $data);
+        return Cliente::update($id, Request::all());
     }
     
     public function destroy($id) {

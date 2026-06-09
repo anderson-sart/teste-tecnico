@@ -4,6 +4,7 @@ session_start();
 require __DIR__ . '/blade.php';
 require __DIR__ . '/router.php';
 require __DIR__ . '/database/DB.php';
+require __DIR__ . '/app/Http/Request.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
