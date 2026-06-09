@@ -2,6 +2,7 @@
 session_start();
 
 require __DIR__ . '/blade.php';
+require __DIR__ . '/router.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -13,45 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'];
 
-// Helper function to check authentication
-function isAuthenticated() {
-    return isset($_SESSION['user_id']);
-}
+// Initialize Router
+$router = new Router();
 
-// Helper function to require authentication
-function requireAuth() {
-    if (!isAuthenticated()) {
-        header('Location: /');
+// Load Web Routes
+if (!str_starts_with($path, '/api')) {
+    require __DIR__ . '/routes/web.php';
+    
+    if ($router->dispatch($method, $path) !== false) {
         exit;
     }
-}
-
-// VIEW ROUTES
-if ($path === '/' || $path === '/login') { 
-    // Se já está logado, redireciona para menu
-    if (isAuthenticated()) {
-        header('Location: /menu');
-        exit;
-    }
-    render('login'); 
-    exit; 
-}
-
-// Rotas protegidas - requerem autenticação
-if ($path === '/menu') { requireAuth(); render('menu'); exit; }
-if ($path === '/produtos') { requireAuth(); render('produtos/index'); exit; }
-if ($path === '/produtos/create') { requireAuth(); render('produtos/form'); exit; }
-if (preg_match('#^/produtos/edit/(\d+)$#', $path)) { requireAuth(); render('produtos/form'); exit; }
-if ($path === '/clientes') { requireAuth(); render('clientes/index'); exit; }
-if ($path === '/clientes/create') { requireAuth(); render('clientes/form'); exit; }
-if (preg_match('#^/clientes/edit/(\d+)$#', $path)) { requireAuth(); render('clientes/form'); exit; }
-
-// Logout
-if ($path === '/logout') {
-    session_destroy();
-    header('Location: /');
-    exit;
 }
 
 // API ROUTES
