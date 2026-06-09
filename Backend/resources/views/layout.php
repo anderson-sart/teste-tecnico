@@ -86,6 +86,25 @@
     <?= $content ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Route Protection - Check if user is logged in
+        (function() {
+            const publicPages = ['/', '/login'];
+            const currentPath = window.location.pathname;
+            const isLoggedIn = localStorage.getItem('username');
+            
+            // Se não está logado e tenta acessar página protegida
+            if (!isLoggedIn && !publicPages.includes(currentPath)) {
+                window.location.href = '/';
+                return;
+            }
+            
+            // Se está logado e tenta acessar login
+            if (isLoggedIn && publicPages.includes(currentPath)) {
+                window.location.href = '/menu';
+                return;
+            }
+        })();
+        
         // Load saved theme
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
