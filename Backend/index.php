@@ -33,6 +33,12 @@ if (!str_starts_with($path, '/api')) {
 if (str_starts_with($path, '/api')) {
     header('Content-Type: application/json');
     
+    // Load Models
+    require_once __DIR__ . '/app/Models/Model.php';
+    require_once __DIR__ . '/app/Models/User.php';
+    require_once __DIR__ . '/app/Models/Produto.php';
+    require_once __DIR__ . '/app/Models/Cliente.php';
+    
     // Load Controllers
     require_once __DIR__ . '/app/Http/Controllers/AuthController.php';
     require_once __DIR__ . '/app/Http/Controllers/ProdutoController.php';
