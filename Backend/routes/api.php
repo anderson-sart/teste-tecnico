@@ -1,23 +1,64 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProdutoController;
-use App\Http\Controllers\ClienteController;
+// Auth Routes
+$router->post('/login', function($pdo) {
+    $controller = new AuthController($pdo);
+    return $controller->login();
+});
 
-// Autenticação
-Route::post('/login', [AuthController::class, 'login']);
+$router->post('/logout', function($pdo) {
+    $controller = new AuthController($pdo);
+    return $controller->logout();
+});
 
-// Produtos
-Route::get('/produtos', [ProdutoController::class, 'index']);
-Route::get('/produtos/{id}', [ProdutoController::class, 'show']);
-Route::post('/produtos', [ProdutoController::class, 'store']);
-Route::put('/produtos/{id}', [ProdutoController::class, 'update']);
-Route::delete('/produtos/{id}', [ProdutoController::class, 'destroy']);
+// Produto Routes
+$router->get('/produtos', function($pdo) {
+    $controller = new ProdutoController($pdo);
+    return $controller->index();
+});
 
-// Clientes
-Route::get('/clientes', [ClienteController::class, 'index']);
-Route::get('/clientes/{id}', [ClienteController::class, 'show']);
-Route::post('/clientes', [ClienteController::class, 'store']);
-Route::put('/clientes/{id}', [ClienteController::class, 'update']);
-Route::delete('/clientes/{id}', [ClienteController::class, 'destroy']);
+$router->get('/produtos/{id}', function($pdo, $id) {
+    $controller = new ProdutoController($pdo);
+    return $controller->show($id);
+});
+
+$router->post('/produtos', function($pdo) {
+    $controller = new ProdutoController($pdo);
+    return $controller->store();
+});
+
+$router->put('/produtos/{id}', function($pdo, $id) {
+    $controller = new ProdutoController($pdo);
+    return $controller->update($id);
+});
+
+$router->delete('/produtos/{id}', function($pdo, $id) {
+    $controller = new ProdutoController($pdo);
+    return $controller->destroy($id);
+});
+
+// Cliente Routes
+$router->get('/clientes', function($pdo) {
+    $controller = new ClienteController($pdo);
+    return $controller->index();
+});
+
+$router->get('/clientes/{id}', function($pdo, $id) {
+    $controller = new ClienteController($pdo);
+    return $controller->show($id);
+});
+
+$router->post('/clientes', function($pdo) {
+    $controller = new ClienteController($pdo);
+    return $controller->store();
+});
+
+$router->put('/clientes/{id}', function($pdo, $id) {
+    $controller = new ClienteController($pdo);
+    return $controller->update($id);
+});
+
+$router->delete('/clientes/{id}', function($pdo, $id) {
+    $controller = new ClienteController($pdo);
+    return $controller->destroy($id);
+});

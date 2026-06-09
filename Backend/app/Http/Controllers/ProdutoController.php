@@ -1,67 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Models\Produto;
-use Illuminate\Http\Request;
-
-class ProdutoController extends Controller
-{
-    public function index()
-    {
-        return response()->json(Produto::orderBy('codigo', 'desc')->get());
+class ProdutoController {
+    private $pdo;
+    
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
     }
-
-    public function show($id)
-    {
-        $produto = Produto::find($id);
-        if (!$produto) {
-            return response()->json(['error' => 'Produto não encontrado'], 404);
-        }
-        return response()->json($produto);
+    
+    public function index() {
+        $stmt = $this->pdo->query('SELECT * FROM produtos WHERE deleted_at IS NULL ORDER BY codigo DESC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'descricao' => 'required|max:60',
-            'codigo_barras' => 'nullable|max:14',
-            'valor_venda' => 'required|numeric',
-            'peso_bruto' => 'required|numeric',
-            'peso_liquido' => 'required|numeric'
-        ]);
-
-        $produto = Produto::create($validated);
-        return response()->json($produto, 201);
+    
+    public function show($id) {
+        $stmt = $this->pdo->prepare('SELECT * FROM produtos WHERE codigo = ? AND deleted_at IS NULL');
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-    public function update(Request $request, $id)
-    {
-        $produto = Produto::find($id);
-        if (!$produto) {
-            return response()->json(['error' => 'Produto não encontrado'], 404);
-        }
-
-        $validated = $request->validate([
-            'descricao' => 'required|max:60',
-            'codigo_barras' => 'nullable|max:14',
-            'valor_venda' => 'required|numeric',
-            'peso_bruto' => 'required|numeric',
-            'peso_liquido' => 'required|numeric'
-        ]);
-
-        $produto->update($validated);
-        return response()->json($produto);
+    
+    public function store() {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $this->pdo->prepare('INSERT INTO produtos (descricao, codigo_barras, valor_venda, peso_bruto, peso_liquido) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$data['descricao'], $data['codigo_barras'], $data['valor_venda'], $data['peso_bruto'], $data['peso_liquido']]);
+        return ['codigo' => $this->pdo->lastInsertId()];
     }
-
-    public function destroy($id)
-    {
-        $produto = Produto::find($id);
-        if (!$produto) {
-            return response()->json(['error' => 'Produto não encontrado'], 404);
-        }
-
-        $produto->delete();
-        return response()->json(['message' => 'Produto deletado com sucesso']);
+    
+    public function update($id) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $this->pdo->prepare('UPDATE produtos SET descricao=?, codigo_barras=?, valor_venda=?, peso_bruto=?, peso_liquido=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
+        $stmt->execute([$data['descricao'], $data['codigo_barras'], $data['valor_venda'], $data['peso_bruto'], $data['peso_liquido'], $id]);
+        return ['success' => true];
+    }
+    
+    public function destroy($id) {
+        $stmt = $this->pdo->prepare('UPDATE produtos SET deleted_at = NOW() WHERE codigo = ?');
+        $stmt->execute([$id]);
+        return ['success' => true];
     }
 }

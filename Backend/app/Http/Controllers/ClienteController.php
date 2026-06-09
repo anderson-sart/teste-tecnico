@@ -1,65 +1,40 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Models\Cliente;
-use Illuminate\Http\Request;
-
-class ClienteController extends Controller
-{
-    public function index()
-    {
-        return response()->json(Cliente::orderBy('codigo', 'desc')->get());
+class ClienteController {
+    private $pdo;
+    
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
     }
-
-    public function show($id)
-    {
-        $cliente = Cliente::find($id);
-        if (!$cliente) {
-            return response()->json(['error' => 'Cliente não encontrado'], 404);
-        }
-        return response()->json($cliente);
+    
+    public function index() {
+        $stmt = $this->pdo->query('SELECT * FROM clientes WHERE deleted_at IS NULL ORDER BY codigo DESC');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nome' => 'required|max:60',
-            'fantasia' => 'nullable|max:100',
-            'documento' => 'required|max:18',
-            'endereco' => 'nullable'
-        ]);
-
-        $cliente = Cliente::create($validated);
-        return response()->json($cliente, 201);
+    
+    public function show($id) {
+        $stmt = $this->pdo->prepare('SELECT * FROM clientes WHERE codigo = ? AND deleted_at IS NULL');
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
-    public function update(Request $request, $id)
-    {
-        $cliente = Cliente::find($id);
-        if (!$cliente) {
-            return response()->json(['error' => 'Cliente não encontrado'], 404);
-        }
-
-        $validated = $request->validate([
-            'nome' => 'required|max:60',
-            'fantasia' => 'nullable|max:100',
-            'documento' => 'required|max:18',
-            'endereco' => 'nullable'
-        ]);
-
-        $cliente->update($validated);
-        return response()->json($cliente);
+    
+    public function store() {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $this->pdo->prepare('INSERT INTO clientes (nome, fantasia, documento, endereco) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$data['nome'], $data['fantasia'], $data['documento'], $data['endereco']]);
+        return ['codigo' => $this->pdo->lastInsertId()];
     }
-
-    public function destroy($id)
-    {
-        $cliente = Cliente::find($id);
-        if (!$cliente) {
-            return response()->json(['error' => 'Cliente não encontrado'], 404);
-        }
-
-        $cliente->delete();
-        return response()->json(['message' => 'Cliente deletado com sucesso']);
+    
+    public function update($id) {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $stmt = $this->pdo->prepare('UPDATE clientes SET nome=?, fantasia=?, documento=?, endereco=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
+        $stmt->execute([$data['nome'], $data['fantasia'], $data['documento'], $data['endereco'], $id]);
+        return ['success' => true];
+    }
+    
+    public function destroy($id) {
+        $stmt = $this->pdo->prepare('UPDATE clientes SET deleted_at = NOW() WHERE codigo = ?');
+        $stmt->execute([$id]);
+        return ['success' => true];
     }
 }

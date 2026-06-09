@@ -32,6 +32,7 @@ if (!str_starts_with($path, '/api')) {
 if (str_starts_with($path, '/api')) {
     header('Content-Type: application/json');
     
+    // Database connection
     $db_host = getenv('DB_HOST') ?: 'db';
     $db_name = getenv('DB_DATABASE') ?: 'softline_db';
     $db_user = getenv('DB_USERNAME') ?: 'softline_user';
@@ -45,98 +46,25 @@ if (str_starts_with($path, '/api')) {
         exit;
     }
 
-    $method = $_SERVER['REQUEST_METHOD'];
-    $path = str_replace('/api', '', $path);
+    // Load Controllers
+    require_once __DIR__ . '/app/Http/Controllers/AuthController.php';
+    require_once __DIR__ . '/app/Http/Controllers/ProdutoController.php';
+    require_once __DIR__ . '/app/Http/Controllers/ClienteController.php';
 
-    // LOGIN
-    if ($path === '/login' && $method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
-        $stmt->execute([$data['username']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($user && password_verify($data['password'], $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            echo json_encode(['success' => true, 'username' => $user['username']]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Usuário ou senha inválidos']);
-        }
+    // Set PDO context for routes
+    $router->setContext($pdo);
+    
+    // Load API Routes
+    $apiPath = str_replace('/api', '', $path);
+    require __DIR__ . '/routes/api.php';
+    
+    $result = $router->dispatch($method, $apiPath);
+    
+    if ($result !== false) {
+        echo json_encode($result);
         exit;
     }
     
-    // LOGOUT
-    if ($path === '/logout' && $method === 'POST') {
-        session_destroy();
-        echo json_encode(['success' => true]);
-        exit;
-    }
-
-    // PRODUTOS
-    if (preg_match('#^/produtos(/(\d+))?$#', $path, $matches)) {
-        $id = $matches[2] ?? null;
-        
-        if ($method === 'GET' && !$id) {
-            $stmt = $pdo->query('SELECT * FROM produtos WHERE deleted_at IS NULL ORDER BY codigo DESC');
-            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-        }
-        elseif ($method === 'GET' && $id) {
-            $stmt = $pdo->prepare('SELECT * FROM produtos WHERE codigo = ? AND deleted_at IS NULL');
-            $stmt->execute([$id]);
-            echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
-        }
-        elseif ($method === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('INSERT INTO produtos (descricao, codigo_barras, valor_venda, peso_bruto, peso_liquido) VALUES (?, ?, ?, ?, ?)');
-            $stmt->execute([$data['descricao'], $data['codigo_barras'], $data['valor_venda'], $data['peso_bruto'], $data['peso_liquido']]);
-            echo json_encode(['codigo' => $pdo->lastInsertId()]);
-        }
-        elseif ($method === 'PUT' && $id) {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE produtos SET descricao=?, codigo_barras=?, valor_venda=?, peso_bruto=?, peso_liquido=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
-            $stmt->execute([$data['descricao'], $data['codigo_barras'], $data['valor_venda'], $data['peso_bruto'], $data['peso_liquido'], $id]);
-            echo json_encode(['success' => true]);
-        }
-        elseif ($method === 'DELETE' && $id) {
-            $stmt = $pdo->prepare('UPDATE produtos SET deleted_at = NOW() WHERE codigo = ?');
-            $stmt->execute([$id]);
-            echo json_encode(['success' => true]);
-        }
-        exit;
-    }
-
-    // CLIENTES
-    if (preg_match('#^/clientes(/(\d+))?$#', $path, $matches)) {
-        $id = $matches[2] ?? null;
-        
-        if ($method === 'GET' && !$id) {
-            $stmt = $pdo->query('SELECT * FROM clientes WHERE deleted_at IS NULL ORDER BY codigo DESC');
-            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
-        }
-        elseif ($method === 'GET' && $id) {
-            $stmt = $pdo->prepare('SELECT * FROM clientes WHERE codigo = ? AND deleted_at IS NULL');
-            $stmt->execute([$id]);
-            echo json_encode($stmt->fetch(PDO::FETCH_ASSOC));
-        }
-        elseif ($method === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('INSERT INTO clientes (nome, fantasia, documento, endereco) VALUES (?, ?, ?, ?)');
-            $stmt->execute([$data['nome'], $data['fantasia'], $data['documento'], $data['endereco']]);
-            echo json_encode(['codigo' => $pdo->lastInsertId()]);
-        }
-        elseif ($method === 'PUT' && $id) {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare('UPDATE clientes SET nome=?, fantasia=?, documento=?, endereco=?, updated_at=NOW() WHERE codigo=? AND deleted_at IS NULL');
-            $stmt->execute([$data['nome'], $data['fantasia'], $data['documento'], $data['endereco'], $id]);
-            echo json_encode(['success' => true]);
-        }
-        elseif ($method === 'DELETE' && $id) {
-            $stmt = $pdo->prepare('UPDATE clientes SET deleted_at = NOW() WHERE codigo = ?');
-            $stmt->execute([$id]);
-            echo json_encode(['success' => true]);
-        }
-        exit;
-    }
-
     echo json_encode(['error' => 'Route not found']);
+    exit;
 }
