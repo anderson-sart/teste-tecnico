@@ -12,10 +12,13 @@ class UserController extends Controller {
     
     public function index() {
         $this->requireAdmin();
+        $users = User::all();
         
-        $pdo = DB::connection();
-        $stmt = $pdo->query('SELECT id, username, is_admin, created_at FROM users ORDER BY id');
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Remover senha da resposta
+        return array_map(function($user) {
+            unset($user['password']);
+            return $user;
+        }, $users);
     }
     
     public function store() {
@@ -28,9 +31,8 @@ class UserController extends Controller {
         $username = Request::input('username');
         $password = password_hash(Request::input('password'), PASSWORD_DEFAULT);
         
-        $pdo = DB::connection();
-        
         // Verificar se usuário já existe
+        $pdo = DB::connection();
         $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
         $stmt->execute([$username]);
         if ($stmt->fetch()) {
@@ -38,16 +40,16 @@ class UserController extends Controller {
             return ['errors' => ['username' => ['Este usuário já existe']]];
         }
         
-        $stmt = $pdo->prepare('INSERT INTO users (username, password) VALUES (?, ?) RETURNING id');
-        $stmt->execute([$username, $password]);
+        $user = User::create([
+            'username' => $username,
+            'password' => $password
+        ]);
         
-        return $this->success(['id' => $stmt->fetchColumn()], 'Usuário criado com sucesso');
+        return $this->success($user, 'Usuário criado com sucesso');
     }
     
     public function destroy($id) {
         $this->requireAdmin();
-        
-        $pdo = DB::connection();
         
         // Não permitir excluir o próprio usuário
         if ($id == $_SESSION['user_id']) {
@@ -55,8 +57,7 @@ class UserController extends Controller {
             return ['errors' => ['user' => ['Você não pode excluir seu próprio usuário']]];
         }
         
-        $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
-        $stmt->execute([$id]);
+        User::delete($id);
         
         return $this->success(null, 'Usuário excluído com sucesso');
     }

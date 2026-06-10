@@ -1,6 +1,6 @@
 <?php
 
-class AuthController {
+class AuthController extends Controller {
     
     public function login() {
         $username = Request::input('username');
@@ -48,18 +48,13 @@ class AuthController {
             return ['success' => false, 'message' => 'A senha deve ter no mínimo 6 caracteres'];
         }
         
-        $pdo = DB::connection();
-        $stmt = $pdo->prepare('SELECT password FROM users WHERE id = ?');
-        $stmt->execute([$userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = User::find($userId);
         
         if (!$user || !password_verify($currentPassword, $user['password'])) {
             return ['success' => false, 'message' => 'Senha atual incorreta'];
         }
         
-        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare('UPDATE users SET password = ? WHERE id = ?');
-        $stmt->execute([$hashedPassword, $userId]);
+        User::update($userId, ['password' => password_hash($newPassword, PASSWORD_DEFAULT)]);
         
         return ['success' => true, 'message' => 'Senha alterada com sucesso'];
     }

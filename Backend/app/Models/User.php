@@ -2,5 +2,5 @@
 
 class User extends Model {
     protected $table = 'users';
-    protected $primaryKey = 'id';
+    protected $softDelete = false;
 }
