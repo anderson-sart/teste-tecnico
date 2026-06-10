@@ -21,10 +21,18 @@ Acesse: http://localhost:8000
 - **[RESUMO.md](RESUMO.md)** - Resumo completo do projeto
 
 ## Tecnologias Utilizadas
-- **Front-end**: Bootstrap 5, JavaScript (integrado com PHP views)
+- **Front-end**: Bootstrap 5, Alpine.js (recomendado oficialmente pelo Laravel)
 - **Back-end**: PHP com Migrations Laravel-style
 - **Banco de Dados**: PostgreSQL
 - **Infraestrutura**: Docker & Docker Compose
+
+### Por que Alpine.js?
+Alpine.js é a escolha oficial recomendada pelo Laravel para interatividade no frontend. Suas vantagens:
+- **Leve**: Apenas 15KB minificado
+- **Declarativo**: Sintaxe HTML intuitiva (similar ao Vue.js)
+- **Reativo**: Atualizações automáticas de UI
+- **Sem build**: Funciona diretamente via CDN
+- **Integração perfeita**: Trabalha nativamente com PHP/Blade
 
 ## Estrutura do Projeto
 ```

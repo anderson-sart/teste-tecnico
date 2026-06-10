@@ -5,7 +5,8 @@ class Request {
     
     public static function all() {
         if (self::$data === null) {
-            self::$data = json_decode(file_get_contents('php://input'), true) ?? [];
+            $input = json_decode(file_get_contents('php://input'), true) ?? [];
+            self::$data = self::sanitize($input);
         }
         return self::$data;
     }
@@ -28,5 +29,17 @@ class Request {
     public static function has($key) {
         $data = self::all();
         return isset($data[$key]);
+    }
+    
+    private static function sanitize($data) {
+        if (is_array($data)) {
+            return array_map([self::class, 'sanitize'], $data);
+        }
+        
+        if (is_string($data)) {
+            return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
+        }
+        
+        return $data;
     }
 }

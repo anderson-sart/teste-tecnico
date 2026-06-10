@@ -1,5 +1,5 @@
 <?php ob_start(); ?>
-<div class="gradient-bg d-flex align-items-center justify-content-center">
+<div class="gradient-bg d-flex align-items-center justify-content-center" style="padding: 40px 20px;" x-data="loginForm()">
     <div class="card shadow-lg" style="width: 100%; max-width: 450px;">
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
@@ -7,20 +7,25 @@
                 <h2 class="mt-3 fw-bold">Softline</h2>
                 <p class="text-muted">Sistema de Cadastro</p>
             </div>
-            <form id="loginForm">
+            <form @submit.prevent="login()">
                 <div class="mb-3">
                     <label class="form-label fw-semibold">
                         <i class="bi bi-person"></i> Usuário
                     </label>
-                    <input type="text" class="form-control form-control-lg" id="username" required>
+                    <input type="text" class="form-control form-control-lg" x-model="username" required>
                 </div>
                 <div class="mb-4">
                     <label class="form-label fw-semibold">
                         <i class="bi bi-lock"></i> Senha
                     </label>
-                    <input type="password" class="form-control form-control-lg" id="password" required>
+                    <div class="input-group input-group-lg">
+                        <input :type="showPassword ? 'text' : 'password'" class="form-control" x-model="password" required>
+                        <button type="button" class="btn btn-outline-secondary" @click="showPassword = !showPassword">
+                            <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                        </button>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg w-100">
+                <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="loading">
                     <i class="bi bi-box-arrow-in-right"></i> Entrar
                 </button>
             </form>
@@ -29,41 +34,45 @@
 </div>
 <?php $content = ob_get_clean(); ob_start(); ?>
 <script>
-setupFormValidation('loginForm');
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    showLoading();
-    
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            })
-        });
+function loginForm() {
+    return {
+        username: '',
+        password: '',
+        showPassword: false,
+        loading: false,
         
-        const data = await response.json();
-        
-        if (data.success) {
-            localStorage.setItem('username', data.username);
-            showToast('Login realizado com sucesso!', 'success');
-            setTimeout(() => window.location.href = '/menu', 1000);
-        } else {
-            showToast(data.message || 'Usuário ou senha incorretos', 'error');
-            submitBtn.disabled = false;
-            hideLoading();
+        async login() {
+            this.loading = true;
+            this.$store.loading.show();
+            
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        username: this.username,
+                        password: this.password
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    localStorage.setItem('username', data.username);
+                    this.$store.toast.show('Login realizado com sucesso!', 'success');
+                    setTimeout(() => window.location.href = '/menu', 1000);
+                } else {
+                    this.$store.toast.show(data.message || 'Usuário ou senha incorretos', 'error');
+                    this.loading = false;
+                    this.$store.loading.hide();
+                }
+            } catch (e) {
+                this.$store.toast.show('Erro ao fazer login', 'error');
+                this.loading = false;
+                this.$store.loading.hide();
+            }
         }
-    } catch (error) {
-        showToast('Erro ao fazer login', 'error');
-        submitBtn.disabled = false;
-        hideLoading();
-    }
-});
+    };
+}
 </script>
 <?php $scripts = ob_get_clean(); $title = 'Login'; include __DIR__ . '/layout.php'; ?>

@@ -1,7 +1,33 @@
 <?php
 session_start();
 
-require __DIR__ . '/blade.php';
+// Error handling
+set_error_handler(function($severity, $message, $file, $line) {
+    throw new ErrorException($message, 0, $severity, $file, $line);
+});
+
+set_exception_handler(function($e) {
+    http_response_code(500);
+    
+    if (str_starts_with($_SERVER['REQUEST_URI'], '/api')) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'error' => 'Erro interno do servidor',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+    } else {
+        echo '<h1>Erro 500</h1>';
+        echo '<p>Ocorreu um erro interno.</p>';
+        echo '<pre>' . $e->getMessage() . '</pre>';
+        echo '<pre>' . $e->getFile() . ':' . $e->getLine() . '</pre>';
+        echo '<pre>' . $e->getTraceAsString() . '</pre>';
+    }
+    exit;
+});
+
+require __DIR__ . '/app/helpers.php';
 require __DIR__ . '/router.php';
 require __DIR__ . '/database/DB.php';
 require __DIR__ . '/app/Http/Request.php';
@@ -41,9 +67,14 @@ if (str_starts_with($path, '/api')) {
     require_once __DIR__ . '/app/Models/Cliente.php';
     
     // Load Controllers
+    require_once __DIR__ . '/app/Http/Controllers/Controller.php';
     require_once __DIR__ . '/app/Http/Controllers/AuthController.php';
     require_once __DIR__ . '/app/Http/Controllers/ProdutoController.php';
     require_once __DIR__ . '/app/Http/Controllers/ClienteController.php';
+    
+    // Load Middleware & Validator
+    require_once __DIR__ . '/app/Http/Middleware.php';
+    require_once __DIR__ . '/app/Http/Validator.php';
     
     // Load API Routes
     $apiPath = str_replace('/api', '', $path);

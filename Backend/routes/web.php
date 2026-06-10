@@ -71,3 +71,8 @@ $router->get('/logout', function() {
     session_destroy();
     header('Location: /');
 });
+
+$router->get('/change-password', function() {
+    requireAuth();
+    render('change-password');
+});

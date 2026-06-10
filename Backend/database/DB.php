@@ -5,10 +5,10 @@ class DB {
     
     public static function connection() {
         if (self::$connection === null) {
-            $host = getenv('DB_HOST') ?: 'db';
-            $name = getenv('DB_DATABASE') ?: 'softline_db';
-            $user = getenv('DB_USERNAME') ?: 'softline_user';
-            $pass = getenv('DB_PASSWORD') ?: 'softline_pass';
+            $host = env('DB_HOST', 'db');
+            $name = env('DB_DATABASE', 'softline_db');
+            $user = env('DB_USERNAME', 'softline_user');
+            $pass = env('DB_PASSWORD', 'softline_pass');
             
             try {
                 self::$connection = new PDO(

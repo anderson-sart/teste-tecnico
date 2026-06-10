@@ -1,5 +1,6 @@
 <?php ob_start(); ?>
-<div class="container-fluid py-4">
+<div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
+<div class="container-fluid" x-data="produtosPage()" x-init="init()">
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/menu"><i class="bi bi-house-door"></i> Início</a></li>
@@ -24,13 +25,13 @@
                                 <i class="bi bi-plus-circle"></i> Novo
                             </a>
                         </div>
-                        <div class="col-auto">
-                            <button class="btn btn-danger" id="btnDeleteSelected" style="display:none">
-                                <i class="bi bi-trash"></i> Excluir Selecionados (<span id="selectedCount">0</span>)
+                        <div class="col-auto" x-show="selected.length > 0" x-transition>
+                            <button class="btn btn-danger" @click="deleteSelected()">
+                                <i class="bi bi-trash"></i> Excluir (<span x-text="selected.length"></span>)
                             </button>
                         </div>
                         <div class="col-auto">
-                            <select class="form-select" id="perPageSelect" style="width:auto">
+                            <select class="form-select" x-model="perPage" @change="currentPage=1" style="width:auto">
                                 <option value="10">10 por página</option>
                                 <option value="25">25 por página</option>
                                 <option value="50">50 por página</option>
@@ -38,30 +39,30 @@
                             </select>
                         </div>
                         <div class="col-12 col-md">
-                            <input type="text" class="form-control" id="search" placeholder="🔍 Pesquisar...">
+                            <input type="text" class="form-control" x-model.debounce.300ms="search" placeholder="🔍 Pesquisar...">
                         </div>
                         <div class="col-auto">
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                            <button class="btn btn-outline-secondary" type="button" @click="showFilters = !showFilters">
                                 <i class="bi bi-funnel"></i> Filtros
                             </button>
                         </div>
                     </div>
                     
                     <!-- Filtros Avançados -->
-                    <div class="collapse mt-3" id="advancedFilters">
+                    <div x-show="showFilters" x-collapse class="mt-3">
                         <div class="card card-body">
                             <div class="row g-2">
                                 <div class="col-md-4">
                                     <label class="form-label small">Preço Mínimo</label>
-                                    <input type="number" class="form-control form-control-sm" id="priceMin" step="0.01" placeholder="R$ 0,00">
+                                    <input type="number" class="form-control form-control-sm" x-model.number="filters.priceMin" step="0.01">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small">Preço Máximo</label>
-                                    <input type="number" class="form-control form-control-sm" id="priceMax" step="0.01" placeholder="R$ 9999,99">
+                                    <input type="number" class="form-control form-control-sm" x-model.number="filters.priceMax" step="0.01">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small">&nbsp;</label>
-                                    <button class="btn btn-sm btn-primary w-100" onclick="applyFilters()">
+                                    <button class="btn btn-sm btn-primary w-100" @click="currentPage=1">
                                         <i class="bi bi-check2"></i> Aplicar
                                     </button>
                                 </div>
@@ -74,16 +75,19 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:40px">
-                                        <input type="checkbox" class="form-check-input" id="selectAll">
+                                        <input type="checkbox" class="form-check-input" 
+                                            :checked="selected.length === paginatedData.length && paginatedData.length > 0"
+                                            :indeterminate="selected.length > 0 && selected.length < paginatedData.length"
+                                            @change="toggleAll($event.target.checked)">
                                     </th>
-                                    <th style="cursor:pointer" onclick="sortBy('codigo')">
+                                    <th style="cursor:pointer" @click="sortBy('codigo')">
                                         Código <i class="bi bi-arrow-down-up"></i>
                                     </th>
-                                    <th style="cursor:pointer" onclick="sortBy('descricao')">
+                                    <th style="cursor:pointer" @click="sortBy('descricao')">
                                         Descrição <i class="bi bi-arrow-down-up"></i>
                                     </th>
                                     <th class="d-none d-md-table-cell">Cód. Barras</th>
-                                    <th style="cursor:pointer" onclick="sortBy('valor_venda')">
+                                    <th style="cursor:pointer" @click="sortBy('valor_venda')">
                                         Valor <i class="bi bi-arrow-down-up"></i>
                                     </th>
                                     <th class="d-none d-lg-table-cell">P. Bruto</th>
@@ -91,263 +95,223 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbody"></tbody>
+                            <tbody>
+                                <template x-for="p in paginatedData" :key="p.codigo">
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="form-check-input" 
+                                                :value="p.codigo"
+                                                :checked="selected.includes(p.codigo)"
+                                                @change="toggleSelect(p.codigo)">
+                                        </td>
+                                        <td x-text="p.codigo"></td>
+                                        <td x-text="p.descricao"></td>
+                                        <td class="d-none d-md-table-cell" x-text="p.codigo_barras || '-'"></td>
+                                        <td class="text-nowrap" x-text="`R$ ${parseFloat(p.valor_venda).toFixed(2)}`"></td>
+                                        <td class="d-none d-lg-table-cell" x-text="`${parseFloat(p.peso_bruto).toFixed(3)} kg`"></td>
+                                        <td class="d-none d-lg-table-cell" x-text="`${parseFloat(p.peso_liquido).toFixed(3)} kg`"></td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-info" @click="view(p)" title="Ver">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <a :href="`/produtos/edit/${p.codigo}?page=${currentPage}`" class="btn btn-warning" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button class="btn btn-danger" @click="del(p)" title="Deletar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
                         </table>
                     </div>
                     <nav>
-                        <ul class="pagination justify-content-center" id="pagination"></ul>
+                        <ul class="pagination justify-content-center">
+                            <template x-if="currentPage > 1">
+                                <li class="page-item">
+                                    <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
+                                </li>
+                            </template>
+                            <template x-for="page in pageNumbers" :key="page">
+                                <li class="page-item" :class="{'active': page === currentPage}">
+                                    <a class="page-link" href="#" @click.prevent="currentPage = page" x-text="page"></a>
+                                </li>
+                            </template>
+                            <template x-if="currentPage < totalPages">
+                                <li class="page-item">
+                                    <a class="page-link" href="#" @click.prevent="currentPage++">Próximo</a>
+                                </li>
+                            </template>
+                        </ul>
                     </nav>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade" id="viewModal" tabindex="-1">
+
+<!-- Modal -->
+<div class="modal fade" id="viewModal" tabindex="-1" x-data="{ produto: null }">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="modalContent"></div>
+            <div class="modal-body">
+                <div class="row g-3" x-show="produto">
+                    <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="produto?.codigo"></div>
+                    <div class="col-6"><strong>Descrição:</strong></div><div class="col-6" x-text="produto?.descricao"></div>
+                    <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6" x-text="produto?.codigo_barras || '-'"></div>
+                    <div class="col-6"><strong>Valor:</strong></div><div class="col-6" x-text="produto ? `R$ ${parseFloat(produto.valor_venda).toFixed(2)}` : ''"></div>
+                    <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6" x-text="produto ? `${parseFloat(produto.peso_bruto).toFixed(3)} kg` : ''"></div>
+                    <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6" x-text="produto ? `${parseFloat(produto.peso_liquido).toFixed(3)} kg` : ''"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 <?php $content = ob_get_clean(); ob_start(); ?>
 <script>
-let currentPage = 1;
-let perPage = 10;
-let allProdutos = [];
-let filteredProdutos = [];
-let sortField = 'codigo';
-let sortDir = 'desc';
-
-async function loadProdutos(keepPage = false) {
-    showLoading();
-    try {
-        const response = await fetch('/api/produtos');
-        allProdutos = await response.json();
-        filteredProdutos = allProdutos;
+function produtosPage() {
+    return {
+        all: [],
+        search: '',
+        currentPage: 1,
+        perPage: 10,
+        sortField: 'codigo',
+        sortDir: 'desc',
+        selected: [],
+        showFilters: false,
+        filters: { priceMin: 0, priceMax: 999999 },
         
-        if (keepPage) {
-            // Verifica se a página atual ainda tem dados
-            const totalPages = Math.ceil(filteredProdutos.length / perPage);
-            if (currentPage > totalPages && totalPages > 0) {
-                currentPage = totalPages; // Vai para última página se atual ficou vazia
+        async init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const page = urlParams.get('page');
+            if (page) this.currentPage = parseInt(page);
+            
+            await this.load();
+        },
+        
+        async load() {
+            this.$store.loading.show();
+            try {
+                const res = await fetch('/api/produtos');
+                this.all = await res.json();
+            } catch (e) {
+                this.$store.toast.show('Erro ao carregar produtos', 'error');
+            } finally {
+                this.$store.loading.hide();
             }
-            renderPage(currentPage);
-        } else {
-            renderPage(1);
-        }
-    } catch (error) {
-        showToast('Erro ao carregar produtos', 'error');
-    } finally {
-        hideLoading();
-    }
-}
-
-function sortBy(field) {
-    if (sortField === field) {
-        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortField = field;
-        sortDir = 'asc';
-    }
-    
-    filteredProdutos.sort((a, b) => {
-        let aVal = a[field];
-        let bVal = b[field];
+        },
         
-        if (typeof aVal === 'string') {
-            aVal = aVal.toLowerCase();
-            bVal = bVal.toLowerCase();
-        }
+        get filtered() {
+            return this.all.filter(p => {
+                const match = !this.search || 
+                    p.descricao.toLowerCase().includes(this.search.toLowerCase()) ||
+                    p.codigo.toString().includes(this.search) ||
+                    (p.codigo_barras && p.codigo_barras.includes(this.search));
+                
+                const price = parseFloat(p.valor_venda);
+                const priceMatch = price >= this.filters.priceMin && 
+                                  price <= (this.filters.priceMax || 999999);
+                
+                return match && priceMatch;
+            }).sort((a, b) => {
+                let aVal = a[this.sortField];
+                let bVal = b[this.sortField];
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                return this.sortDir === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
+            });
+        },
         
-        if (sortDir === 'asc') {
-            return aVal > bVal ? 1 : -1;
-        } else {
-            return aVal < bVal ? 1 : -1;
-        }
-    });
-    
-    renderPage(1);
-}
-
-document.getElementById('search').addEventListener('input', function(e) {
-    applyFilters();
-});
-
-function applyFilters() {
-    const searchTerm = document.getElementById('search').value.trim().toLowerCase();
-    const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
-    const priceMax = parseFloat(document.getElementById('priceMax').value) || Infinity;
-    
-    filteredProdutos = allProdutos.filter(p => {
-        const matchSearch = !searchTerm || 
-            p.descricao.toLowerCase().includes(searchTerm) ||
-            p.codigo.toString().includes(searchTerm) ||
-            (p.codigo_barras && p.codigo_barras.includes(searchTerm));
+        get totalPages() {
+            return Math.ceil(this.filtered.length / this.perPage);
+        },
         
-        const matchPrice = parseFloat(p.valor_venda) >= priceMin && 
-                          parseFloat(p.valor_venda) <= priceMax;
+        get paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filtered.slice(start, start + this.perPage);
+        },
         
-        return matchSearch && matchPrice;
-    });
-    
-    renderPage(1);
-}
-
-document.getElementById('perPageSelect').addEventListener('change', function() {
-    perPage = parseInt(this.value);
-    currentPage = 1;
-    renderPage(1);
-});
-
-function renderPage(page) {
-    currentPage = page;
-    const start = (page - 1) * perPage;
-    const end = start + perPage;
-    const produtos = filteredProdutos.slice(start, end);
-    
-    const tbody = document.getElementById('tbody');
-    tbody.innerHTML = produtos.map(p => `
-        <tr>
-            <td>
-                <input type="checkbox" class="form-check-input row-checkbox" value="${p.codigo}" onchange="updateSelection()">
-            </td>
-            <td>${p.codigo}</td>
-            <td>${p.descricao}</td>
-            <td class="d-none d-md-table-cell">${p.codigo_barras || '-'}</td>
-            <td class="text-nowrap">R$ ${parseFloat(p.valor_venda).toFixed(2)}</td>
-            <td class="d-none d-lg-table-cell">${parseFloat(p.peso_bruto).toFixed(3)} kg</td>
-            <td class="d-none d-lg-table-cell">${parseFloat(p.peso_liquido).toFixed(3)} kg</td>
-            <td>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button class="btn btn-info" onclick="view(${p.codigo})" title="Ver">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <a href="/produtos/edit/${p.codigo}?page=${currentPage}" class="btn btn-warning" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <button class="btn btn-danger" onclick="del(${p.codigo})" title="Deletar">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-    
-    renderPagination();
-}
-
-function renderPagination() {
-    const totalPages = Math.ceil(filteredProdutos.length / perPage);
-    const pagination = document.getElementById('pagination');
-    
-    let html = '';
-    if (currentPage > 1) {
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="renderPage(${currentPage - 1}); return false;">Anterior</a></li>`;
-    }
-    
-    for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-            html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="renderPage(${i}); return false;">${i}</a>
-            </li>`;
-        } else if (i === currentPage - 3 || i === currentPage + 3) {
-            html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+        get pageNumbers() {
+            const pages = [];
+            for (let i = 1; i <= this.totalPages; i++) {
+                if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
+                    pages.push(i);
+                }
+            }
+            return pages;
+        },
+        
+        sortBy(field) {
+            if (this.sortField === field) {
+                this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortField = field;
+                this.sortDir = 'asc';
+            }
+            this.currentPage = 1;
+        },
+        
+        toggleSelect(id) {
+            const idx = this.selected.indexOf(id);
+            idx === -1 ? this.selected.push(id) : this.selected.splice(idx, 1);
+        },
+        
+        toggleAll(checked) {
+            this.selected = checked ? this.paginatedData.map(p => p.codigo) : [];
+        },
+        
+        view(p) {
+            const modal = document.querySelector('#viewModal [x-data]');
+            Alpine.$data(modal).produto = p;
+            new bootstrap.Modal(document.getElementById('viewModal')).show();
+        },
+        
+        del(p) {
+            confirmDelete(
+                `<p>Deseja realmente excluir o produto?</p><p class="fw-bold mb-0">${p.descricao}</p>`,
+                async () => {
+                    this.$store.loading.show();
+                    try {
+                        await fetch('/api/produtos/' + p.codigo, {method: 'DELETE'});
+                        this.$store.toast.show('Produto excluído com sucesso!', 'success');
+                        await this.load();
+                    } catch (e) {
+                        this.$store.toast.show('Erro ao excluir produto', 'error');
+                        this.$store.loading.hide();
+                    }
+                }
+            );
+        },
+        
+        deleteSelected() {
+            confirmDelete(
+                `<p>Deseja realmente excluir <strong>${this.selected.length}</strong> produto(s)?</p>`,
+                async () => {
+                    this.$store.loading.show();
+                    try {
+                        await Promise.all(this.selected.map(id => fetch('/api/produtos/' + id, {method: 'DELETE'})));
+                        this.$store.toast.show(`${this.selected.length} produto(s) excluído(s)!`, 'success');
+                        this.selected = [];
+                        await this.load();
+                    } catch (e) {
+                        this.$store.toast.show('Erro ao excluir produtos', 'error');
+                        this.$store.loading.hide();
+                    }
+                }
+            );
         }
-    }
-    
-    if (currentPage < totalPages) {
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="renderPage(${currentPage + 1}); return false;">Próximo</a></li>`;
-    }
-    
-    pagination.innerHTML = html;
+    };
 }
-
-async function view(id) {
-    const response = await fetch('/api/produtos/' + id);
-    const p = await response.json();
-    document.getElementById('modalContent').innerHTML = `
-        <div class="row g-3">
-            <div class="col-6"><strong>Código:</strong></div><div class="col-6">${p.codigo}</div>
-            <div class="col-6"><strong>Descrição:</strong></div><div class="col-6">${p.descricao}</div>
-            <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6">${p.codigo_barras || '-'}</div>
-            <div class="col-6"><strong>Valor:</strong></div><div class="col-6">R$ ${parseFloat(p.valor_venda).toFixed(2)}</div>
-            <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6">${parseFloat(p.peso_bruto).toFixed(3)} kg</div>
-            <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6">${parseFloat(p.peso_liquido).toFixed(3)} kg</div>
-        </div>
-    `;
-    new bootstrap.Modal(document.getElementById('viewModal')).show();
-}
-
-async function del(id) {
-    const produto = allProdutos.find(p => p.codigo == id);
-    const message = `<p>Deseja realmente excluir o produto?</p><p class="fw-bold mb-0">${produto ? produto.descricao : 'Produto #' + id}</p>`;
-    
-    confirmDelete(message, async () => {
-        showLoading();
-        try {
-            await fetch('/api/produtos/' + id, {method: 'DELETE'});
-            showToast('Produto excluído com sucesso!', 'success');
-            loadProdutos(true); // Mantém a página atual
-        } catch (error) {
-            showToast('Erro ao excluir produto', 'error');
-            hideLoading();
-        }
-    });
-}
-
-// Seleção múltipla
-function updateSelection() {
-    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-    const count = checkboxes.length;
-    document.getElementById('selectedCount').textContent = count;
-    document.getElementById('btnDeleteSelected').style.display = count > 0 ? 'block' : 'none';
-    
-    const total = document.querySelectorAll('.row-checkbox').length;
-    document.getElementById('selectAll').checked = count === total && total > 0;
-    document.getElementById('selectAll').indeterminate = count > 0 && count < total;
-}
-
-document.getElementById('selectAll').addEventListener('change', function() {
-    document.querySelectorAll('.row-checkbox').forEach(cb => {
-        cb.checked = this.checked;
-    });
-    updateSelection();
-});
-
-document.getElementById('btnDeleteSelected').addEventListener('click', async function() {
-    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-    const ids = Array.from(checkboxes).map(cb => cb.value);
-    const count = ids.length;
-    
-    const message = `<p>Deseja realmente excluir <strong>${count}</strong> produto(s) selecionado(s)?</p>`;
-    
-    confirmDelete(message, async () => {
-        showLoading();
-        try {
-            await Promise.all(ids.map(id => fetch('/api/produtos/' + id, {method: 'DELETE'})));
-            showToast(`${count} produto(s) excluído(s) com sucesso!`, 'success');
-            document.getElementById('selectAll').checked = false;
-            document.getElementById('btnDeleteSelected').style.display = 'none';
-            document.getElementById('selectedCount').textContent = '0';
-            loadProdutos(true);
-        } catch (error) {
-            showToast('Erro ao excluir produtos', 'error');
-            hideLoading();
-        }
-    });
-});
-
-// Restaura página da URL
-const urlParams = new URLSearchParams(window.location.search);
-const pageParam = urlParams.get('page');
-if (pageParam) {
-    currentPage = parseInt(pageParam);
-}
-
-loadProdutos();
 </script>
 <?php $scripts = ob_get_clean(); $title = 'Produtos'; include __DIR__ . '/../layout.php'; ?>
+</div>
