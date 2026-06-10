@@ -33,6 +33,16 @@ class Validator {
                     $errors[$field][] = "O campo $field deve ser numérico";
                 }
                 
+                // Min length/value
+                if (str_starts_with($r, 'min:')) {
+                    $min = (int) substr($r, 4);
+                    if (isset($data[$field])) {
+                        if (is_string($data[$field]) && strlen($data[$field]) < $min) {
+                            $errors[$field][] = "O campo $field deve ter no mínimo $min caracteres";
+                        }
+                    }
+                }
+                
                 // Barcode (EAN-8, EAN-13, GTIN)
                 if ($r === 'barcode' && isset($data[$field]) && !empty($data[$field])) {
                     $barcode = preg_replace('/[^0-9]/', '', $data[$field]);

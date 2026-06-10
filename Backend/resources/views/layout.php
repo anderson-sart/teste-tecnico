@@ -118,6 +118,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/clientes"><i class="bi bi-people me-1"></i>Clientes</a>
                     </li>
+                    <?php if (!empty($_SESSION['is_admin'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/usuarios"><i class="bi bi-person-gear me-1"></i>Usuários</a>
+                    </li>
+                    <?php endif; ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-1"></i><?= $_SESSION['username'] ?? 'Usuário' ?>

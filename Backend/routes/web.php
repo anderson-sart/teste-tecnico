@@ -66,6 +66,24 @@ $router->get('/clientes/edit/{id}', function() {
     render('clientes/form');
 });
 
+$router->get('/usuarios', function() {
+    requireAuth();
+    if (empty($_SESSION['is_admin'])) {
+        header('Location: /menu');
+        exit;
+    }
+    render('usuarios/index');
+});
+
+$router->get('/usuarios/create', function() {
+    requireAuth();
+    if (empty($_SESSION['is_admin'])) {
+        header('Location: /menu');
+        exit;
+    }
+    render('usuarios/form');
+});
+
 // Logout
 $router->get('/logout', function() {
     session_destroy();

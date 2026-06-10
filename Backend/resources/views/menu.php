@@ -79,12 +79,28 @@
                     </div>
                 </a>
             </div>
+            <?php if (!empty($_SESSION['is_admin'])): ?>
             <div class="col-lg-4">
-                <a href="/change-password" class="text-decoration-none">
+                <a href="/usuarios" class="text-decoration-none">
                     <div class="card h-100 border-0 shadow-lg hover-lift">
                         <div class="card-body text-center p-5">
-                            <i class="bi bi-shield-lock text-warning mb-3" style="font-size: 4rem;"></i>
-                            <h4 class="fw-bold mb-2">Segurança</h4>
+                            <i class="bi bi-person-gear text-info mb-3" style="font-size: 4rem;"></i>
+                            <h4 class="fw-bold mb-2">Usuários</h4>
+                            <p class="text-muted mb-0">Gerenciar usuários do sistema</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <?php endif; ?>
+        </div>
+        
+        <div class="row g-4 mt-2">
+            <div class="col-lg-12">
+                <a href="/change-password" class="text-decoration-none">
+                    <div class="card border-0 shadow-lg hover-lift">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-shield-lock text-warning mb-2" style="font-size: 3rem;"></i>
+                            <h5 class="fw-bold mb-1">Segurança</h5>
                             <p class="text-muted mb-0">Alterar senha de acesso</p>
                         </div>
                     </div>

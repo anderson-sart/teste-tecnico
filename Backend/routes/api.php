@@ -84,3 +84,22 @@ $router->delete('/clientes/{id}', function($id) {
     $controller = new ClienteController();
     return $controller->destroy($id);
 });
+
+// User Routes (Protegidas)
+$router->get('/users', function() {
+    requireAuth();
+    $controller = new UserController();
+    return $controller->index();
+});
+
+$router->post('/users', function() {
+    requireAuth();
+    $controller = new UserController();
+    return $controller->store();
+});
+
+$router->delete('/users/{id}', function($id) {
+    requireAuth();
+    $controller = new UserController();
+    return $controller->destroy($id);
+});

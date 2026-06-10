@@ -71,6 +71,7 @@ if (str_starts_with($path, '/api')) {
     require_once __DIR__ . '/app/Http/Controllers/AuthController.php';
     require_once __DIR__ . '/app/Http/Controllers/ProdutoController.php';
     require_once __DIR__ . '/app/Http/Controllers/ClienteController.php';
+    require_once __DIR__ . '/app/Http/Controllers/UserController.php';
     
     // Load Middleware & Validator
     require_once __DIR__ . '/app/Http/Middleware.php';
