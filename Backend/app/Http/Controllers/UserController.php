@@ -32,10 +32,7 @@ class UserController extends Controller {
         $password = password_hash(Request::input('password'), PASSWORD_DEFAULT);
         
         // Verificar se usuário já existe
-        $pdo = DB::connection();
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
-        $stmt->execute([$username]);
-        if ($stmt->fetch()) {
+        if (User::where('username', $username)) {
             http_response_code(422);
             return ['errors' => ['username' => ['Este usuário já existe']]];
         }

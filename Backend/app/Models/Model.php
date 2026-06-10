@@ -69,4 +69,13 @@ class Model {
         $stmt->execute([$id]);
         return ['success' => true];
     }
+    
+    public static function where($field, $value) {
+        $instance = new static();
+        $pdo = DB::connection();
+        $where = $instance->softDelete ? "AND deleted_at IS NULL" : "";
+        $stmt = $pdo->prepare("SELECT * FROM {$instance->table} WHERE {$field} = ? {$where}");
+        $stmt->execute([$value]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
