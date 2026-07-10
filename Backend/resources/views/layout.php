@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?? 'Softline' ?></title>
+    <title><?= $title ?? 'Sistema' ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
@@ -102,7 +102,7 @@
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/menu">
                 <i class="bi bi-building text-primary me-2" style="font-size: 1.8rem;"></i>
-                <span class="text-gradient">Softline</span>
+                <span class="text-gradient">Sistema</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -143,7 +143,7 @@
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center mx-auto">
                 <i class="bi bi-building text-primary me-2" style="font-size: 1.8rem;"></i>
-                <span>Softline</span>
+                <span>Sistema</span>
             </a>
         </div>
     </nav>

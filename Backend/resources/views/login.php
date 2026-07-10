@@ -4,7 +4,7 @@
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
                 <i class="bi bi-building text-primary" style="font-size: 3rem;"></i>
-                <h2 class="mt-3 fw-bold">Softline</h2>
+                <h2 class="mt-3 fw-bold">Sistema</h2>
                 <p class="text-muted">Sistema de Cadastro</p>
             </div>
             <form @submit.prevent="login()">
