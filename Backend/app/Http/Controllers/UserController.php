@@ -3,7 +3,8 @@
 class UserController extends Controller {
     
     private function requireAdmin() {
-        if (empty($_SESSION['is_admin'])) {
+        $user = JWT::getUser();
+        if (empty($user['is_admin'])) {
             http_response_code(403);
             echo json_encode(['error' => 'Acesso negado. Apenas administradores podem gerenciar usuários.']);
             exit;
@@ -12,13 +13,21 @@ class UserController extends Controller {
     
     public function index() {
         $this->requireAdmin();
-        $users = User::all();
+        $result = User::paginate([
+            'search' => Request::query('search', ''),
+            'sort_by' => Request::query('sort_by', 'id'),
+            'sort_dir' => Request::query('sort_dir', 'DESC'),
+            'page' => Request::query('page', 1),
+            'per_page' => Request::query('per_page', 10),
+        ]);
         
         // Remover senha da resposta
-        return array_map(function($user) {
+        $result['data'] = array_map(function($user) {
             unset($user['password']);
             return $user;
-        }, $users);
+        }, $result['data']);
+        
+        return $result;
     }
     
     public function store() {
@@ -49,7 +58,8 @@ class UserController extends Controller {
         $this->requireAdmin();
         
         // Não permitir excluir o próprio usuário
-        if ($id == $_SESSION['user_id']) {
+        $currentUser = JWT::getUser();
+        if ($id == $currentUser['id']) {
             http_response_code(422);
             return ['errors' => ['user' => ['Você não pode excluir seu próprio usuário']]];
         }

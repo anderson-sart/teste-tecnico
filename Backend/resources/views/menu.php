@@ -123,14 +123,12 @@ function dashboard() {
         async loadStats() {
             this.$store.loading.show();
             try {
-                const [produtos, clientes] = await Promise.all([
-                    fetch('/api/produtos').then(r => r.json()),
-                    fetch('/api/clientes').then(r => r.json())
-                ]);
+                const res = await fetch('/api/stats');
+                const stats = await res.json();
                 
-                this.stats.produtos = produtos.length;
-                this.stats.clientes = clientes.length;
-                this.stats.valorTotal = produtos.reduce((sum, p) => sum + parseFloat(p.valor_venda || 0), 0);
+                this.stats.produtos = stats.produtos;
+                this.stats.clientes = stats.clientes;
+                this.stats.valorTotal = stats.valor_total;
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar estatísticas', 'error');
             } finally {

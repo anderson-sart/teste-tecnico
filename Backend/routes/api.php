@@ -103,3 +103,13 @@ $router->delete('/users/{id}', function($id) {
     $controller = new UserController();
     return $controller->destroy($id);
 });
+
+// Stats Route (Dashboard)
+$router->get('/stats', function() {
+    requireAuth();
+    return [
+        'produtos' => Produto::count(),
+        'clientes' => Cliente::count(),
+        'valor_total' => Produto::sum('valor_venda'),
+    ];
+});

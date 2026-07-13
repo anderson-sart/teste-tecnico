@@ -179,20 +179,27 @@
 <script>
 function produtosPage() {
     return {
-        all: [],
+        data: [],
         search: '',
         currentPage: 1,
         perPage: 10,
+        totalPages: 1,
+        total: 0,
         sortField: 'codigo',
         sortDir: 'desc',
         selected: [],
         showFilters: false,
         filters: { priceMin: 0, priceMax: 999999 },
+        loading: false,
         
         async init() {
             const urlParams = new URLSearchParams(window.location.search);
             const page = urlParams.get('page');
             if (page) this.currentPage = parseInt(page);
+            
+            this.$watch('search', () => { this.currentPage = 1; this.load(); });
+            this.$watch('currentPage', () => this.load());
+            this.$watch('perPage', () => { this.currentPage = 1; this.load(); });
             
             await this.load();
         },
@@ -200,8 +207,19 @@ function produtosPage() {
         async load() {
             this.$store.loading.show();
             try {
-                const res = await fetch('/api/produtos');
-                this.all = await res.json();
+                const params = new URLSearchParams({
+                    search: this.search,
+                    sort_by: this.sortField,
+                    sort_dir: this.sortDir,
+                    page: this.currentPage,
+                    per_page: this.perPage,
+                });
+                const res = await fetch('/api/produtos?' + params);
+                const result = await res.json();
+                this.data = result.data;
+                this.total = result.total;
+                this.totalPages = result.last_page;
+                this.currentPage = result.page;
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar produtos', 'error');
             } finally {
@@ -209,36 +227,8 @@ function produtosPage() {
             }
         },
         
-        get filtered() {
-            return this.all.filter(p => {
-                const match = !this.search || 
-                    p.descricao.toLowerCase().includes(this.search.toLowerCase()) ||
-                    p.codigo.toString().includes(this.search) ||
-                    (p.codigo_barras && p.codigo_barras.includes(this.search));
-                
-                const price = parseFloat(p.valor_venda);
-                const priceMatch = price >= this.filters.priceMin && 
-                                  price <= (this.filters.priceMax || 999999);
-                
-                return match && priceMatch;
-            }).sort((a, b) => {
-                let aVal = a[this.sortField];
-                let bVal = b[this.sortField];
-                if (typeof aVal === 'string') {
-                    aVal = aVal.toLowerCase();
-                    bVal = bVal.toLowerCase();
-                }
-                return this.sortDir === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
-            });
-        },
-        
-        get totalPages() {
-            return Math.ceil(this.filtered.length / this.perPage);
-        },
-        
         get paginatedData() {
-            const start = (this.currentPage - 1) * this.perPage;
-            return this.filtered.slice(start, start + this.perPage);
+            return this.data;
         },
         
         get pageNumbers() {
@@ -259,6 +249,7 @@ function produtosPage() {
                 this.sortDir = 'asc';
             }
             this.currentPage = 1;
+            this.load();
         },
         
         toggleSelect(id) {

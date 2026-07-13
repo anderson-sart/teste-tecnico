@@ -31,6 +31,13 @@ class Request {
         return isset($data[$key]);
     }
     
+    /**
+     * Get a query string parameter (?key=value)
+     */
+    public static function query($key, $default = null) {
+        return $_GET[$key] ?? $default;
+    }
+    
     private static function sanitize($data) {
         if (is_array($data)) {
             return array_map([self::class, 'sanitize'], $data);

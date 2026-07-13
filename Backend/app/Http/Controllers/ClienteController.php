@@ -3,7 +3,13 @@
 class ClienteController extends Controller {
     
     public function index() {
-        return Cliente::all();
+        return Cliente::paginate([
+            'search' => Request::query('search', ''),
+            'sort_by' => Request::query('sort_by', 'codigo'),
+            'sort_dir' => Request::query('sort_dir', 'DESC'),
+            'page' => Request::query('page', 1),
+            'per_page' => Request::query('per_page', 10),
+        ]);
     }
     
     public function show($id) {
