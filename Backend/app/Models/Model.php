@@ -25,7 +25,7 @@ class Model {
         $instance = new static();
         $pdo = DB::connection();
         
-        $search = $params['search'] ?? '';
+        $search = trim($params['search'] ?? '');
         $sortBy = $params['sort_by'] ?? $instance->primaryKey;
         $sortDir = strtoupper($params['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
         $page = max(1, (int)($params['page'] ?? 1));
@@ -85,6 +85,7 @@ class Model {
     public static function count(string $search = '') {
         $instance = new static();
         $pdo = DB::connection();
+        $search = trim($search);
         
         $conditions = [];
         $bindings = [];
