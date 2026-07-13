@@ -217,9 +217,9 @@ function produtosPage() {
                 const res = await fetch('/api/produtos?' + params);
                 const result = await res.json();
                 this.data = result.data;
-                this.total = result.total;
-                this.totalPages = result.last_page;
-                this.currentPage = result.page;
+                this.total = result.meta.total;
+                this.totalPages = result.meta.last_page;
+                this.currentPage = result.meta.page;
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar produtos', 'error');
             } finally {

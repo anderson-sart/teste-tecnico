@@ -61,11 +61,34 @@ if (!str_starts_with($path, '/api')) {
 if (str_starts_with($path, '/api')) {
     header('Content-Type: application/json');
     
+    // Load ApiResponse
+    require_once __DIR__ . '/app/Http/Responses/ApiResponse.php';
+    
+    // Load Data classes
+    require_once __DIR__ . '/app/Data/Pagination/PaginationInputData.php';
+    require_once __DIR__ . '/app/Data/Produto/Input/ProdutoInputData.php';
+    require_once __DIR__ . '/app/Data/Produto/Output/ProdutoOutputData.php';
+    require_once __DIR__ . '/app/Data/Cliente/Input/ClienteInputData.php';
+    require_once __DIR__ . '/app/Data/Cliente/Output/ClienteOutputData.php';
+    
     // Load Models
     require_once __DIR__ . '/app/Models/Model.php';
     require_once __DIR__ . '/app/Models/User.php';
     require_once __DIR__ . '/app/Models/Produto.php';
     require_once __DIR__ . '/app/Models/Cliente.php';
+    
+    // Load UseCases
+    require_once __DIR__ . '/app/UseCases/Produto/ListarProdutosUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Produto/ShowProdutoUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Produto/StoreProdutoUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Produto/UpdateProdutoUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Produto/DeleteProdutoUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Cliente/ListarClientesUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Cliente/ShowClienteUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Cliente/StoreClienteUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Cliente/UpdateClienteUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Cliente/DeleteClienteUseCase.php';
+    require_once __DIR__ . '/app/UseCases/Stats/GetStatsUseCase.php';
     
     // Load Controllers
     require_once __DIR__ . '/app/Http/Controllers/Controller.php';
@@ -85,7 +108,12 @@ if (str_starts_with($path, '/api')) {
     $result = $router->dispatch($method, $apiPath);
     
     if ($result !== false) {
-        echo json_encode($result);
+        // Handle ApiResponse objects
+        if ($result instanceof ApiResponse) {
+            echo json_encode($result->toArray());
+        } else {
+            echo json_encode($result);
+        }
         exit;
     }
     

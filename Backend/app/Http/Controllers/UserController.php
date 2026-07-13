@@ -27,7 +27,7 @@ class UserController extends Controller {
             return $user;
         }, $result['data']);
         
-        return $result;
+        return ApiResponse::paginated($result);
     }
     
     public function store() {

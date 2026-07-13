@@ -3,43 +3,50 @@
 class ClienteController extends Controller {
     
     public function index() {
-        return Cliente::paginate([
-            'search' => Request::query('search', ''),
-            'sort_by' => Request::query('sort_by', 'codigo'),
-            'sort_dir' => Request::query('sort_dir', 'DESC'),
-            'page' => Request::query('page', 1),
-            'per_page' => Request::query('per_page', 10),
-        ]);
+        $input = PaginationInputData::fromRequest('codigo');
+        $useCase = new ListarClientesUseCase();
+        
+        return ApiResponse::paginated($useCase->execute($input));
     }
     
     public function show($id) {
-        return $this->validateExists(Cliente::class, $id, 'Cliente não encontrado');
+        $useCase = new ShowClienteUseCase();
+        $result = $useCase->execute((int) $id);
+        
+        if (!$result) {
+            return ApiResponse::notFound('Cliente não encontrado');
+        }
+        
+        return ApiResponse::ok($result);
     }
     
     public function store() {
-        Validator::validate(Request::all(), [
-            'nome' => 'required|max:60',
-            'documento' => 'required|cpf_cnpj|max:18',
-            'endereco' => 'max:255'
-        ]);
+        $input = ClienteInputData::fromRequest();
+        $useCase = new StoreClienteUseCase();
         
-        return $this->success(Cliente::create(Request::all()), 'Cliente criado com sucesso');
+        return ApiResponse::created($useCase->execute($input));
     }
     
     public function update($id) {
-        $this->validateExists(Cliente::class, $id, 'Cliente não encontrado');
+        $input = ClienteInputData::fromRequest();
+        $useCase = new UpdateClienteUseCase();
+        $result = $useCase->execute((int) $id, $input);
         
-        Validator::validate(Request::all(), [
-            'nome' => 'required|max:60',
-            'documento' => 'required|cpf_cnpj|max:18',
-            'endereco' => 'max:255'
-        ]);
+        if (!$result) {
+            return ApiResponse::notFound('Cliente não encontrado');
+        }
         
-        return $this->success(Cliente::update($id, Request::all()), 'Cliente atualizado com sucesso');
+        return ApiResponse::ok($result);
     }
     
     public function destroy($id) {
-        $this->validateExists(Cliente::class, $id, 'Cliente não encontrado');
-        return $this->success(Cliente::delete($id), 'Cliente excluído com sucesso');
+        $useCase = new DeleteClienteUseCase();
+        $result = $useCase->execute((int) $id);
+        
+        if (!$result) {
+            return ApiResponse::notFound('Cliente não encontrado');
+        }
+        
+        return ApiResponse::ok(['message' => 'Cliente excluído com sucesso']);
     }
 }
