@@ -48,7 +48,7 @@ class Model {
         if ($search !== '' && !empty($instance->searchable)) {
             $searchConditions = [];
             foreach ($instance->searchable as $field) {
-                $searchConditions[] = "CAST({$field} AS TEXT) ILIKE ?";
+                $searchConditions[] = "unaccent(CAST({$field} AS TEXT)) ILIKE unaccent(?)";
                 $bindings[] = "%{$search}%";
             }
             $conditions[] = '(' . implode(' OR ', $searchConditions) . ')';
@@ -97,7 +97,7 @@ class Model {
         if ($search !== '' && !empty($instance->searchable)) {
             $searchConditions = [];
             foreach ($instance->searchable as $field) {
-                $searchConditions[] = "CAST({$field} AS TEXT) ILIKE ?";
+                $searchConditions[] = "unaccent(CAST({$field} AS TEXT)) ILIKE unaccent(?)";
                 $bindings[] = "%{$search}%";
             }
             $conditions[] = '(' . implode(' OR ', $searchConditions) . ')';
