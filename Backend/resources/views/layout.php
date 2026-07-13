@@ -97,7 +97,8 @@
 </head>
 <body>
     <!-- Navbar -->
-    <?php if (isset($_SESSION['user_id'])): ?>
+    <?php $authUser = JWT::getUser(); ?>
+    <?php if ($authUser): ?>
     <nav class="navbar navbar-expand-lg fixed-top" data-bs-theme="light">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/menu">
@@ -118,20 +119,20 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/clientes"><i class="bi bi-people me-1"></i>Clientes</a>
                     </li>
-                    <?php if (!empty($_SESSION['is_admin'])): ?>
+                    <?php if (!empty($authUser['is_admin'])): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="/usuarios"><i class="bi bi-person-gear me-1"></i>Usuários</a>
                     </li>
                     <?php endif; ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-1"></i><?= $_SESSION['username'] ?? 'Usuário' ?>
+                            <i class="bi bi-person-circle me-1"></i><?= $authUser['username'] ?? 'Usuário' ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/change-password"><i class="bi bi-shield-lock me-2"></i>Trocar Senha</a></li>
                             <li><a class="dropdown-item" href="#" @click.prevent="toggleTheme()" x-data="themeToggle()"><i :class="theme === 'dark' ? 'bi bi-sun me-2' : 'bi bi-moon-stars me-2'"></i><span x-text="theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'"></span></a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="localStorage.removeItem('auth_token');localStorage.removeItem('username');localStorage.removeItem('is_admin');window.location.href='/logout';"><i class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -179,6 +180,30 @@
     <?= $content ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Override fetch to include auth token
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options = {}) {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                options.headers = options.headers || {};
+                if (options.headers instanceof Headers) {
+                    options.headers.set('Authorization', 'Bearer ' + token);
+                } else {
+                    options.headers['Authorization'] = 'Bearer ' + token;
+                }
+            }
+            return originalFetch(url, options).then(response => {
+                // If 401, redirect to login
+                if (response.status === 401 && !url.includes('/api/login')) {
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('is_admin');
+                    window.location.href = '/';
+                }
+                return response;
+            });
+        };
+
         // Alpine.js global data
         document.addEventListener('alpine:init', () => {
             Alpine.store('theme', {

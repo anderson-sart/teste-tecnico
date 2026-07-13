@@ -59,6 +59,8 @@ function loginForm() {
                 
                 if (data.success) {
                     localStorage.setItem('username', data.username);
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('is_admin', data.is_admin ? '1' : '0');
                     this.$store.toast.show('Login realizado com sucesso!', 'success');
                     setTimeout(() => window.location.href = '/menu', 1000);
                 } else {

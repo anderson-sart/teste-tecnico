@@ -1,9 +1,9 @@
-<?php ob_start(); ?>
+<?php ob_start(); $authUser = JWT::getUser(); ?>
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;" x-data="dashboard()" x-init="init()">
     <div class="container">
         <!-- Header -->
         <div class="text-center mb-5">
-            <h1 class="text-white fw-bold display-5 mb-2">Bem-vindo, <?= $_SESSION['username'] ?? 'Usuário' ?>!</h1>
+            <h1 class="text-white fw-bold display-5 mb-2">Bem-vindo, <?= $authUser['username'] ?? 'Usuário' ?>!</h1>
             <p class="text-white-50 fs-5">Gerencie seus produtos e clientes</p>
         </div>
         
@@ -79,7 +79,7 @@
                     </div>
                 </a>
             </div>
-            <?php if (!empty($_SESSION['is_admin'])): ?>
+            <?php if (!empty($authUser['is_admin'])): ?>
             <div class="col-lg-4">
                 <a href="/usuarios" class="text-decoration-none">
                     <div class="card h-100 border-0 shadow-lg hover-lift">

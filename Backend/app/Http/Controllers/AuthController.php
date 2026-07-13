@@ -12,26 +12,51 @@ class AuthController extends Controller {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['is_admin'] = $user['is_admin'] ?? false;
-            return ['success' => true, 'username' => $user['username']];
+            $token = JWT::encode([
+                'user_id' => $user['id'],
+                'username' => $user['username'],
+                'is_admin' => $user['is_admin'] ?? false,
+            ]);
+            
+            // Set cookie for web routes (httpOnly for security)
+            $expiration = (int)env('JWT_EXPIRATION', 86400);
+            setcookie('auth_token', $token, [
+                'expires' => time() + $expiration,
+                'path' => '/',
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+            
+            return [
+                'success' => true,
+                'username' => $user['username'],
+                'is_admin' => $user['is_admin'] ?? false,
+                'token' => $token,
+            ];
         }
         
         return ['success' => false, 'message' => 'Usuário ou senha inválidos'];
     }
     
     public function logout() {
-        session_destroy();
+        // Clear the auth cookie
+        setcookie('auth_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+        
         return ['success' => true];
     }
     
     public function changePassword() {
-        $userId = $_SESSION['user_id'] ?? null;
-        if (!$userId) {
+        $user = JWT::getUser();
+        if (!$user || !$user['id']) {
             return ['success' => false, 'message' => 'Não autenticado'];
         }
         
+        $userId = $user['id'];
         $currentPassword = Request::input('current_password');
         $newPassword = Request::input('new_password');
         $confirmPassword = Request::input('confirm_password');
@@ -48,9 +73,9 @@ class AuthController extends Controller {
             return ['success' => false, 'message' => 'A senha deve ter no mínimo 6 caracteres'];
         }
         
-        $user = User::find($userId);
+        $dbUser = User::find($userId);
         
-        if (!$user || !password_verify($currentPassword, $user['password'])) {
+        if (!$dbUser || !password_verify($currentPassword, $dbUser['password'])) {
             return ['success' => false, 'message' => 'Senha atual incorreta'];
         }
         

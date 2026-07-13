@@ -1,5 +1,5 @@
 <?php
-session_start();
+// No session needed - using JWT tokens for stateless auth
 
 // Error handling
 set_error_handler(function($severity, $message, $file, $line) {
@@ -31,10 +31,11 @@ require __DIR__ . '/app/helpers.php';
 require __DIR__ . '/router.php';
 require __DIR__ . '/database/DB.php';
 require __DIR__ . '/app/Http/Request.php';
+require __DIR__ . '/app/Http/JWT.php';
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);

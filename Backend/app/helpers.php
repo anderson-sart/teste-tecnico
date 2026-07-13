@@ -47,12 +47,5 @@ function redirect($url) {
  * Get current authenticated user
  */
 function auth() {
-    if (!isset($_SESSION['user_id'])) {
-        return null;
-    }
-    
-    return [
-        'id' => $_SESSION['user_id'],
-        'username' => $_SESSION['username'] ?? null
-    ];
+    return JWT::getUser();
 }

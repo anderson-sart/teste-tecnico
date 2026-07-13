@@ -1,8 +1,13 @@
 <?php
 
-// Helper function to check authentication
+// Helper function to check authentication via JWT cookie
 function isAuthenticated() {
-    return isset($_SESSION['user_id']);
+    return JWT::getUser() !== null;
+}
+
+// Helper to get current user from JWT
+function currentUser() {
+    return JWT::getUser();
 }
 
 // Helper function to require authentication
@@ -68,7 +73,8 @@ $router->get('/clientes/edit/{id}', function() {
 
 $router->get('/usuarios', function() {
     requireAuth();
-    if (empty($_SESSION['is_admin'])) {
+    $user = currentUser();
+    if (empty($user['is_admin'])) {
         header('Location: /menu');
         exit;
     }
@@ -77,7 +83,8 @@ $router->get('/usuarios', function() {
 
 $router->get('/usuarios/create', function() {
     requireAuth();
-    if (empty($_SESSION['is_admin'])) {
+    $user = currentUser();
+    if (empty($user['is_admin'])) {
         header('Location: /menu');
         exit;
     }
@@ -86,8 +93,14 @@ $router->get('/usuarios/create', function() {
 
 // Logout
 $router->get('/logout', function() {
-    session_destroy();
+    setcookie('auth_token', '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     header('Location: /');
+    exit;
 });
 
 $router->get('/change-password', function() {
