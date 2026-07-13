@@ -5,6 +5,22 @@ function requireAuth() {
     Middleware::auth();
 }
 
+// Health Check (para Kubernetes liveness/readiness probes)
+$router->get('/health', function() {
+    try {
+        $pdo = DB::connection();
+        $pdo->query('SELECT 1');
+        return ApiResponse::ok([
+            'status' => 'healthy',
+            'database' => 'connected',
+            'timestamp' => date('c'),
+        ])->withoutWrap();
+    } catch (Exception $e) {
+        http_response_code(503);
+        return ['status' => 'unhealthy', 'database' => 'disconnected'];
+    }
+});
+
 // Auth Routes
 $router->post('/login', function() {
     $controller = new AuthController();

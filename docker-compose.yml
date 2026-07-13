@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
-    container_name: softline_postgres
+    container_name: app_postgres
     environment:
       POSTGRES_DB: softline_db
       POSTGRES_USER: softline_user
@@ -12,18 +10,24 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U softline_user -d softline_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
-      - softline_network
+      - app_network
 
   backend:
     build: ./Backend
-    container_name: softline_backend
+    container_name: app_backend
     ports:
       - "8000:8000"
     volumes:
       - ./Backend:/var/www/html
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DB_CONNECTION: pgsql
       DB_HOST: db
@@ -31,12 +35,14 @@ services:
       DB_DATABASE: softline_db
       DB_USERNAME: softline_user
       DB_PASSWORD: softline_pass
+      JWT_SECRET: minha-chave-secreta-alterar-em-producao
+      JWT_EXPIRATION: 86400
     networks:
-      - softline_network
+      - app_network
 
 volumes:
   postgres_data:
 
 networks:
-  softline_network:
+  app_network:
     driver: bridge
