@@ -5,14 +5,11 @@
  */
 class DeleteClienteUseCase {
     
+    public function __construct(
+        private ClienteRepositoryInterface $repository
+    ) {}
+    
     public function execute(int $id): bool {
-        $cliente = Cliente::find($id);
-        
-        if (!$cliente) {
-            return false;
-        }
-        
-        Cliente::delete($id);
-        return true;
+        return $this->repository->delete($id);
     }
 }

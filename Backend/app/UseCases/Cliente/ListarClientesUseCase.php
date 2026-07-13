@@ -5,8 +5,12 @@
  */
 class ListarClientesUseCase {
     
+    public function __construct(
+        private ClienteRepositoryInterface $repository
+    ) {}
+    
     public function execute(PaginationInputData $input): array {
-        $result = Cliente::paginate($input->toArray());
+        $result = $this->repository->paginate($input->toArray());
         
         $result['data'] = ClienteOutputData::collection($result['data']);
         

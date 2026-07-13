@@ -5,13 +5,12 @@
  */
 class UpdateProdutoUseCase {
     
-    /**
-     * @param int $id
-     * @param ProdutoInputData $input
-     * @return ProdutoOutputData|null
-     */
+    public function __construct(
+        private ProdutoRepositoryInterface $repository
+    ) {}
+    
     public function execute(int $id, ProdutoInputData $input): ?ProdutoOutputData {
-        $produto = Produto::find($id);
+        $produto = $this->repository->find($id);
         
         if (!$produto) {
             return null;
@@ -25,8 +24,8 @@ class UpdateProdutoUseCase {
             'peso_liquido' => 'required|numeric|max:9999999.999'
         ]);
         
-        Produto::update($id, $input->toArray());
-        $produto = Produto::find($id);
+        $this->repository->update($id, $input->toArray());
+        $produto = $this->repository->find($id);
         
         return ProdutoOutputData::from($produto);
     }

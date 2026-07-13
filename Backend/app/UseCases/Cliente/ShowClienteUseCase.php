@@ -5,8 +5,12 @@
  */
 class ShowClienteUseCase {
     
+    public function __construct(
+        private ClienteRepositoryInterface $repository
+    ) {}
+    
     public function execute(int $id): ?ClienteOutputData {
-        $cliente = Cliente::find($id);
+        $cliente = $this->repository->find($id);
         
         if (!$cliente) {
             return null;

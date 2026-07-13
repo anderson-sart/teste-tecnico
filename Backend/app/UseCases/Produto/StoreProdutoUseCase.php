@@ -5,10 +5,10 @@
  */
 class StoreProdutoUseCase {
     
-    /**
-     * @param ProdutoInputData $input
-     * @return ProdutoOutputData
-     */
+    public function __construct(
+        private ProdutoRepositoryInterface $repository
+    ) {}
+    
     public function execute(ProdutoInputData $input): ProdutoOutputData {
         Validator::validate($input->toArray(), [
             'descricao' => 'required|max:60',
@@ -18,8 +18,8 @@ class StoreProdutoUseCase {
             'peso_liquido' => 'required|numeric|max:9999999.999'
         ]);
         
-        $result = Produto::create($input->toArray());
-        $produto = Produto::find($result['codigo']);
+        $result = $this->repository->create($input->toArray());
+        $produto = $this->repository->find($result['codigo']);
         
         return ProdutoOutputData::from($produto);
     }

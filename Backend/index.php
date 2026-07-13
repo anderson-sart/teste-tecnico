@@ -77,6 +77,16 @@ if (str_starts_with($path, '/api')) {
     require_once __DIR__ . '/app/Models/Produto.php';
     require_once __DIR__ . '/app/Models/Cliente.php';
     
+    // Load Repositories
+    require_once __DIR__ . '/app/Repositories/Interface/BaseRepositoryInterface.php';
+    require_once __DIR__ . '/app/Repositories/Interface/ProdutoRepositoryInterface.php';
+    require_once __DIR__ . '/app/Repositories/Interface/ClienteRepositoryInterface.php';
+    require_once __DIR__ . '/app/Repositories/Interface/UserRepositoryInterface.php';
+    require_once __DIR__ . '/app/Repositories/Implementation/BaseRepositoryImplementation.php';
+    require_once __DIR__ . '/app/Repositories/Implementation/ProdutoRepositoryImplementation.php';
+    require_once __DIR__ . '/app/Repositories/Implementation/ClienteRepositoryImplementation.php';
+    require_once __DIR__ . '/app/Repositories/Implementation/UserRepositoryImplementation.php';
+    
     // Load UseCases
     require_once __DIR__ . '/app/UseCases/Produto/ListarProdutosUseCase.php';
     require_once __DIR__ . '/app/UseCases/Produto/ShowProdutoUseCase.php';

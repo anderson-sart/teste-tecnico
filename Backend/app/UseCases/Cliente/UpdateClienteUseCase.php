@@ -5,8 +5,12 @@
  */
 class UpdateClienteUseCase {
     
+    public function __construct(
+        private ClienteRepositoryInterface $repository
+    ) {}
+    
     public function execute(int $id, ClienteInputData $input): ?ClienteOutputData {
-        $cliente = Cliente::find($id);
+        $cliente = $this->repository->find($id);
         
         if (!$cliente) {
             return null;
@@ -18,8 +22,8 @@ class UpdateClienteUseCase {
             'endereco' => 'max:255'
         ]);
         
-        Cliente::update($id, $input->toArray());
-        $cliente = Cliente::find($id);
+        $this->repository->update($id, $input->toArray());
+        $cliente = $this->repository->find($id);
         
         return ClienteOutputData::from($cliente);
     }

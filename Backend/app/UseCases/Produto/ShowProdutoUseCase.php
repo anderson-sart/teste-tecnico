@@ -5,12 +5,12 @@
  */
 class ShowProdutoUseCase {
     
-    /**
-     * @param int $id
-     * @return ProdutoOutputData|null
-     */
+    public function __construct(
+        private ProdutoRepositoryInterface $repository
+    ) {}
+    
     public function execute(int $id): ?ProdutoOutputData {
-        $produto = Produto::find($id);
+        $produto = $this->repository->find($id);
         
         if (!$produto) {
             return null;

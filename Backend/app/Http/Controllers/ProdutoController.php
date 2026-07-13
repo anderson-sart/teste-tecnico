@@ -2,15 +2,21 @@
 
 class ProdutoController extends Controller {
     
+    private ProdutoRepositoryInterface $repository;
+    
+    public function __construct() {
+        $this->repository = new ProdutoRepositoryImplementation();
+    }
+    
     public function index() {
         $input = PaginationInputData::fromRequest('codigo');
-        $useCase = new ListarProdutosUseCase();
+        $useCase = new ListarProdutosUseCase($this->repository);
         
         return ApiResponse::paginated($useCase->execute($input));
     }
     
     public function show($id) {
-        $useCase = new ShowProdutoUseCase();
+        $useCase = new ShowProdutoUseCase($this->repository);
         $result = $useCase->execute((int) $id);
         
         if (!$result) {
@@ -22,14 +28,14 @@ class ProdutoController extends Controller {
     
     public function store() {
         $input = ProdutoInputData::fromRequest();
-        $useCase = new StoreProdutoUseCase();
+        $useCase = new StoreProdutoUseCase($this->repository);
         
         return ApiResponse::created($useCase->execute($input));
     }
     
     public function update($id) {
         $input = ProdutoInputData::fromRequest();
-        $useCase = new UpdateProdutoUseCase();
+        $useCase = new UpdateProdutoUseCase($this->repository);
         $result = $useCase->execute((int) $id, $input);
         
         if (!$result) {
@@ -40,7 +46,7 @@ class ProdutoController extends Controller {
     }
     
     public function destroy($id) {
-        $useCase = new DeleteProdutoUseCase();
+        $useCase = new DeleteProdutoUseCase($this->repository);
         $result = $useCase->execute((int) $id);
         
         if (!$result) {

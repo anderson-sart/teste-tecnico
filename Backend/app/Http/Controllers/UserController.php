@@ -2,6 +2,12 @@
 
 class UserController extends Controller {
     
+    private UserRepositoryInterface $repository;
+    
+    public function __construct() {
+        $this->repository = new UserRepositoryImplementation();
+    }
+    
     private function requireAdmin() {
         $user = JWT::getUser();
         if (empty($user['is_admin'])) {
@@ -13,7 +19,7 @@ class UserController extends Controller {
     
     public function index() {
         $this->requireAdmin();
-        $result = User::paginate([
+        $result = $this->repository->paginate([
             'search' => Request::query('search', ''),
             'sort_by' => Request::query('sort_by', 'id'),
             'sort_dir' => Request::query('sort_dir', 'DESC'),
@@ -41,17 +47,17 @@ class UserController extends Controller {
         $password = password_hash(Request::input('password'), PASSWORD_DEFAULT);
         
         // Verificar se usuário já existe
-        if (User::where('username', $username)) {
+        if ($this->repository->findByUsername($username)) {
             http_response_code(422);
             return ['errors' => ['username' => ['Este usuário já existe']]];
         }
         
-        $user = User::create([
+        $user = $this->repository->create([
             'username' => $username,
             'password' => $password
         ]);
         
-        return $this->success($user, 'Usuário criado com sucesso');
+        return ApiResponse::created(['id' => $user['id'], 'message' => 'Usuário criado com sucesso']);
     }
     
     public function destroy($id) {
@@ -64,8 +70,12 @@ class UserController extends Controller {
             return ['errors' => ['user' => ['Você não pode excluir seu próprio usuário']]];
         }
         
-        User::delete($id);
+        $result = $this->repository->delete((int) $id);
         
-        return $this->success(null, 'Usuário excluído com sucesso');
+        if (!$result) {
+            return ApiResponse::notFound('Usuário não encontrado');
+        }
+        
+        return ApiResponse::ok(['message' => 'Usuário excluído com sucesso']);
     }
 }

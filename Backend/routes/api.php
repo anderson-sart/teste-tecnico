@@ -123,6 +123,9 @@ $router->delete('/users/{id}', function($id) {
 // Stats Route (Dashboard)
 $router->get('/stats', function() {
     requireAuth();
-    $useCase = new GetStatsUseCase();
+    $useCase = new GetStatsUseCase(
+        new ProdutoRepositoryImplementation(),
+        new ClienteRepositoryImplementation()
+    );
     return ApiResponse::ok($useCase->execute())->withoutWrap();
 });

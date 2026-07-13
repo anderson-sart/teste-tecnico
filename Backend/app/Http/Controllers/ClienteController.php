@@ -2,15 +2,21 @@
 
 class ClienteController extends Controller {
     
+    private ClienteRepositoryInterface $repository;
+    
+    public function __construct() {
+        $this->repository = new ClienteRepositoryImplementation();
+    }
+    
     public function index() {
         $input = PaginationInputData::fromRequest('codigo');
-        $useCase = new ListarClientesUseCase();
+        $useCase = new ListarClientesUseCase($this->repository);
         
         return ApiResponse::paginated($useCase->execute($input));
     }
     
     public function show($id) {
-        $useCase = new ShowClienteUseCase();
+        $useCase = new ShowClienteUseCase($this->repository);
         $result = $useCase->execute((int) $id);
         
         if (!$result) {
@@ -22,14 +28,14 @@ class ClienteController extends Controller {
     
     public function store() {
         $input = ClienteInputData::fromRequest();
-        $useCase = new StoreClienteUseCase();
+        $useCase = new StoreClienteUseCase($this->repository);
         
         return ApiResponse::created($useCase->execute($input));
     }
     
     public function update($id) {
         $input = ClienteInputData::fromRequest();
-        $useCase = new UpdateClienteUseCase();
+        $useCase = new UpdateClienteUseCase($this->repository);
         $result = $useCase->execute((int) $id, $input);
         
         if (!$result) {
@@ -40,7 +46,7 @@ class ClienteController extends Controller {
     }
     
     public function destroy($id) {
-        $useCase = new DeleteClienteUseCase();
+        $useCase = new DeleteClienteUseCase($this->repository);
         $result = $useCase->execute((int) $id);
         
         if (!$result) {
