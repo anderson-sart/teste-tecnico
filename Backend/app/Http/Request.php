@@ -42,11 +42,6 @@ class Request {
         if (is_array($data)) {
             return array_map([self::class, 'sanitize'], $data);
         }
-        
-        if (is_string($data)) {
-            return htmlspecialchars(trim($data), ENT_QUOTES, 'UTF-8');
-        }
-        
-        return $data;
+        return is_string($data) ? trim($data) : $data;
     }
 }

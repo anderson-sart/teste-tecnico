@@ -32,6 +32,13 @@ set_exception_handler(function($e) {
 
 require __DIR__ . '/app/helpers.php';
 require __DIR__ . '/vendor/autoload.php';
+
+// Carregar .env se existir
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+}
+
 require __DIR__ . '/router.php';
 require __DIR__ . '/database/DB.php';
 require __DIR__ . '/app/Http/Request.php';
@@ -40,7 +47,8 @@ require __DIR__ . '/app/Http/JWT.php';
 // Boot Eloquent
 DB::boot();
 
-header('Access-Control-Allow-Origin: *');
+$allowedOrigin = env('APP_URL', '*');
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 

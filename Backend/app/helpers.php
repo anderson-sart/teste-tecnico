@@ -4,9 +4,9 @@
  * Get environment variable with fallback
  */
 function env($key, $default = null) {
-    $value = getenv($key);
-    
-    if ($value === false) {
+    $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+
+    if ($value === false || $value === null) {
         return $default;
     }
     

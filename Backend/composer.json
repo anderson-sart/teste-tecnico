@@ -8,7 +8,8 @@
         "illuminate/database": "^11.51",
         "illuminate/pagination": "^11.51",
         "illuminate/validation": "^11.51",
-        "jenssegers/blade": "^2.0"
+        "jenssegers/blade": "^2.0",
+        "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
         "classmap": ["app/", "database/"]

@@ -27,7 +27,7 @@ class Router {
         
         // Pattern match (para rotas com parâmetros)
         foreach ($this->routes[$method] ?? [] as $route => $callback) {
-            $pattern = preg_replace('/\{[a-z]+\}/', '(\d+)', $route);
+            $pattern = preg_replace('/\{[a-z_]+\}/', '([^/]+)', $route);
             $pattern = '#^' . $pattern . '$#';
             
             if (preg_match($pattern, $path, $matches)) {
