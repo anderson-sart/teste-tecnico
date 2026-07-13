@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Data\Pagination;
+
+use App\Http\Request;
+
 /**
  * Input padronizado para consultas paginadas.
  * Equivalente ao InputData do padrão UseCase.

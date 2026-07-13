@@ -1,5 +1,10 @@
 <?php
 
+namespace App\UseCases\Produto;
+
+use App\Data\Produto\Output\ProdutoOutputData;
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+
 /**
  * UseCase: Buscar um Produto por ID.
  */

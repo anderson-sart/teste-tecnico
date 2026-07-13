@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Repositories\Implementation;
+
+use App\Repositories\Interface\BaseRepositoryInterface;
+
 class BaseRepositoryImplementation implements BaseRepositoryInterface {
 
     protected string $modelClass;
@@ -8,33 +12,35 @@ class BaseRepositoryImplementation implements BaseRepositoryInterface {
         $this->modelClass = $modelClass;
     }
 
-    public function all(): array {
-        return $this->modelClass::all()->toArray();
+    public function all(int $limit = 1000): array {
+        return $this->modelClass::limit($limit)->get()->toArray();
+    }
+
+    private function applySearch($query, string $search): void {
+        $searchable = $this->modelClass::$searchable ?? [];
+        if ($search === '' || empty($searchable)) return;
+
+        $query->where(function($q) use ($search, $searchable) {
+            foreach ($searchable as $field) {
+                $q->orWhereRaw("unaccent(CAST({$field} AS TEXT)) ILIKE unaccent(?)", ["%{$search}%"]);
+            }
+        });
     }
 
     public function paginate(array $params = []): array {
-        $model      = new $this->modelClass;
-        $search     = trim($params['search'] ?? '');
-        $sortBy     = $params['sort_by'] ?? $model->getKeyName();
-        $sortDir    = strtoupper($params['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
-        $page       = max(1, (int)($params['page'] ?? 1));
-        $perPage    = min(100, max(1, (int)($params['per_page'] ?? 10)));
-        $searchable = $this->modelClass::$searchable ?? [];
+        $model   = new $this->modelClass;
+        $search  = trim($params['search'] ?? '');
+        $sortBy  = $params['sort_by'] ?? $model->getKeyName();
+        $sortDir = strtoupper($params['sort_dir'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+        $page    = max(1, (int)($params['page'] ?? 1));
+        $perPage = min(100, max(1, (int)($params['per_page'] ?? 10)));
 
-        // Validate sort column
         if (!in_array($sortBy, array_merge($model->getFillable(), [$model->getKeyName()]))) {
             $sortBy = $model->getKeyName();
         }
 
         $query = $this->modelClass::query();
-
-        if ($search !== '' && !empty($searchable)) {
-            $query->where(function($q) use ($search, $searchable) {
-                foreach ($searchable as $field) {
-                    $q->orWhereRaw("unaccent(CAST({$field} AS TEXT)) ILIKE unaccent(?)", ["%{$search}%"]);
-                }
-            });
-        }
+        $this->applySearch($query, $search);
 
         $total   = $query->count();
         $results = $query->orderBy($sortBy, $sortDir)
@@ -63,15 +69,13 @@ class BaseRepositoryImplementation implements BaseRepositoryInterface {
     public function update(int $id, array $data): bool {
         $record = $this->modelClass::find($id);
         if (!$record) return false;
-        $record->update($data);
-        return true;
+        return $record->update($data);
     }
 
     public function delete(int $id): bool {
         $record = $this->modelClass::find($id);
         if (!$record) return false;
-        $record->delete();
-        return true;
+        return (bool) $record->delete();
     }
 
     public function findBy(string $field, mixed $value): ?array {
@@ -79,7 +83,9 @@ class BaseRepositoryImplementation implements BaseRepositoryInterface {
     }
 
     public function count(string $search = ''): int {
-        return $this->modelClass::count();
+        $query = $this->modelClass::query();
+        $this->applySearch($query, trim($search));
+        return $query->count();
     }
 
     public function sum(string $column): float {

@@ -1,5 +1,9 @@
 <?php
 
+namespace App\UseCases\Produto;
+
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+
 /**
  * UseCase: Excluir (soft delete) um Produto.
  */

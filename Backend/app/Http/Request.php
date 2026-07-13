@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http;
+
 class Request {
     private static $data = null;
     

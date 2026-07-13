@@ -1,5 +1,12 @@
 <?php
 
+namespace App\UseCases\Produto;
+
+use App\Data\Produto\Input\ProdutoInputData;
+use App\Data\Produto\Output\ProdutoOutputData;
+use App\Http\Validator;
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+
 class StoreProdutoUseCase {
 
     public function __construct(private ProdutoRepositoryInterface $repository) {}

@@ -1,5 +1,19 @@
 <?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Request;
+use App\Http\Responses\ApiResponse;
+use App\Repositories\Implementation\ProdutoRepositoryImplementation;
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+use App\Data\Produto\Input\ProdutoInputData;
+use App\Data\Pagination\PaginationInputData;
+use App\UseCases\Produto\ListarProdutosUseCase;
+use App\UseCases\Produto\ShowProdutoUseCase;
+use App\UseCases\Produto\StoreProdutoUseCase;
+use App\UseCases\Produto\UpdateProdutoUseCase;
+use App\UseCases\Produto\DeleteProdutoUseCase;
+
 class ProdutoController extends Controller {
     
     private ProdutoRepositoryInterface $repository;

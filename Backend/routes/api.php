@@ -1,5 +1,16 @@
 <?php
 
+use App\DB;
+use App\Http\Middleware;
+use App\Http\Responses\ApiResponse;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\UserController;
+use App\Repositories\Implementation\ProdutoRepositoryImplementation;
+use App\Repositories\Implementation\ClienteRepositoryImplementation;
+use App\UseCases\Stats\GetStatsUseCase;
+
 // Middleware de autenticação
 function requireAuth() {
     Middleware::auth();

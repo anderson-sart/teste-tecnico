@@ -1,5 +1,19 @@
 <?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Request;
+use App\Http\Responses\ApiResponse;
+use App\Repositories\Implementation\ClienteRepositoryImplementation;
+use App\Repositories\Interface\ClienteRepositoryInterface;
+use App\Data\Cliente\Input\ClienteInputData;
+use App\Data\Pagination\PaginationInputData;
+use App\UseCases\Cliente\ListarClientesUseCase;
+use App\UseCases\Cliente\ShowClienteUseCase;
+use App\UseCases\Cliente\StoreClienteUseCase;
+use App\UseCases\Cliente\UpdateClienteUseCase;
+use App\UseCases\Cliente\DeleteClienteUseCase;
+
 class ClienteController extends Controller {
     
     private ClienteRepositoryInterface $repository;

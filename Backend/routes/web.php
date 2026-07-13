@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\JWT;
+
 // Helper function to check authentication via JWT cookie
 function isAuthenticated() {
     return JWT::getUser() !== null;

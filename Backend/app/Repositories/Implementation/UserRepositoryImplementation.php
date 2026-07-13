@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Repositories\Implementation;
+
+use App\Models\User;
+use App\Repositories\Interface\UserRepositoryInterface;
+
 /**
  * Implementação do Repository de User.
  */

@@ -38,10 +38,16 @@ if ($command === 'migrate') {
 }
 
 if ($command === 'db:seed') {
-    if (file_exists(__DIR__ . '/database/seeders/DatabaseSeeder.php')) {
-        include __DIR__ . '/database/seeders/DatabaseSeeder.php';
-        $seeder = new Database\Seeders\DatabaseSeeder();
-        $seeder->run();
-        echo "Seeding completed\n";
+    require __DIR__ . '/vendor/autoload.php';
+
+    if (file_exists(__DIR__ . '/.env')) {
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+        $dotenv->load();
     }
+
+    \App\DB::boot();
+
+    $seeder = new \Database\Seeders\DatabaseSeeder();
+    $seeder->run();
+    echo "Seeding completed\n";
 }

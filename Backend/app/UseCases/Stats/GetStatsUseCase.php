@@ -1,5 +1,10 @@
 <?php
 
+namespace App\UseCases\Stats;
+
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+use App\Repositories\Interface\ClienteRepositoryInterface;
+
 /**
  * UseCase: Obter estatísticas do dashboard.
  */

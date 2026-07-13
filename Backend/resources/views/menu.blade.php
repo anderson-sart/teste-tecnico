@@ -3,7 +3,7 @@
 @section('title', 'Menu')
 
 @section('content')
-@php $authUser = \JWT::getUser(); @endphp
+@php $authUser = \App\Http\JWT::getUser(); @endphp
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;" x-data="dashboard()" x-init="init()">
     <div class="container">
         <div class="text-center mb-5">

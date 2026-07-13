@@ -31,7 +31,7 @@
     </style>
 </head>
 <body>
-    @php $authUser = \JWT::getUser(); @endphp
+    @php $authUser = \App\Http\JWT::getUser(); @endphp
     @if($authUser)
     <nav class="navbar navbar-expand-lg fixed-top" data-bs-theme="light">
         <div class="container-fluid">

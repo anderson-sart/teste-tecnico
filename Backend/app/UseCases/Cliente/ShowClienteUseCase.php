@@ -1,5 +1,10 @@
 <?php
 
+namespace App\UseCases\Cliente;
+
+use App\Data\Cliente\Output\ClienteOutputData;
+use App\Repositories\Interface\ClienteRepositoryInterface;
+
 /**
  * UseCase: Buscar um Cliente por ID.
  */

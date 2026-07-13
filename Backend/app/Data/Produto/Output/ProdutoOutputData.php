@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Data\Produto\Output;
+
 /**
  * Output Data para Produto.
  * Garante a estrutura e tipagem da resposta.

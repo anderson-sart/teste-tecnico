@@ -1,5 +1,11 @@
 <?php
 
+namespace App\UseCases\Produto;
+
+use App\Data\Pagination\PaginationInputData;
+use App\Data\Produto\Output\ProdutoOutputData;
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+
 /**
  * UseCase: Listar Produtos com paginação, busca e ordenação.
  */

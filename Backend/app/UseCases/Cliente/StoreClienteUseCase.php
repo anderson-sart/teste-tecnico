@@ -1,5 +1,12 @@
 <?php
 
+namespace App\UseCases\Cliente;
+
+use App\Data\Cliente\Input\ClienteInputData;
+use App\Data\Cliente\Output\ClienteOutputData;
+use App\Http\Validator;
+use App\Repositories\Interface\ClienteRepositoryInterface;
+
 class StoreClienteUseCase {
 
     public function __construct(private ClienteRepositoryInterface $repository) {}

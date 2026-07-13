@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Data\Produto\Input;
+
+use App\Http\Request;
+
 /**
  * Input Data para criar/atualizar Produto.
  */

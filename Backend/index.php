@@ -30,19 +30,18 @@ set_exception_handler(function($e) {
     exit;
 });
 
-require __DIR__ . '/app/helpers.php';
 require __DIR__ . '/vendor/autoload.php';
+
+use App\Router;
+use App\DB;
+use App\Http\JWT;
+use App\Http\Responses\ApiResponse;
 
 // Carregar .env se existir
 if (file_exists(__DIR__ . '/.env')) {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 }
-
-require __DIR__ . '/router.php';
-require __DIR__ . '/database/DB.php';
-require __DIR__ . '/app/Http/Request.php';
-require __DIR__ . '/app/Http/JWT.php';
 
 // Boot Eloquent
 DB::boot();

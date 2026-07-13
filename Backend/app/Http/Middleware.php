@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http;
+
 class Middleware {
     
     public static function auth() {

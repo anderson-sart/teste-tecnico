@@ -1,5 +1,9 @@
 <?php
 
+namespace App\UseCases\Cliente;
+
+use App\Repositories\Interface\ClienteRepositoryInterface;
+
 /**
  * UseCase: Excluir (soft delete) um Cliente.
  */

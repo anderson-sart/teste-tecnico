@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http;
+
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Translation\FileLoader;
 use Illuminate\Translation\Translator;

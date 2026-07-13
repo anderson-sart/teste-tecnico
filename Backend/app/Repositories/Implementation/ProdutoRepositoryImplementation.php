@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Repositories\Implementation;
+
+use App\Models\Produto;
+use App\Repositories\Interface\ProdutoRepositoryInterface;
+
 /**
  * Implementação do Repository de Produto.
  */
@@ -7,9 +12,5 @@ class ProdutoRepositoryImplementation extends BaseRepositoryImplementation imple
     
     public function __construct() {
         parent::__construct(Produto::class);
-    }
-    
-    public function sum(string $column): float {
-        return Produto::sum($column);
     }
 }

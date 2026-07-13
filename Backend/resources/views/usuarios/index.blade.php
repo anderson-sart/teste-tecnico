@@ -3,7 +3,7 @@
 @section('title', 'Usuários')
 
 @section('content')
-@php $authUser = \JWT::getUser(); @endphp
+@php $authUser = \App\Http\JWT::getUser(); @endphp
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
 <div class="container-fluid" x-data="usuariosPage()" x-init="init()">
     <nav aria-label="breadcrumb" class="mb-3">

@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http;
+
 class JWT {
     
     private static function getSecret(): string {

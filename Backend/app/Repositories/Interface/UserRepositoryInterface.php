@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Repositories\Interface;
+
 /**
  * Interface do Repository de User.
  * Estende o contrato base.

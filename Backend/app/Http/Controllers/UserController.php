@@ -1,5 +1,14 @@
 <?php
 
+namespace App\Http\Controllers;
+
+use App\Http\JWT;
+use App\Http\Request;
+use App\Http\Validator;
+use App\Http\Responses\ApiResponse;
+use App\Repositories\Implementation\UserRepositoryImplementation;
+use App\Repositories\Interface\UserRepositoryInterface;
+
 class UserController extends Controller {
     
     private UserRepositoryInterface $repository;

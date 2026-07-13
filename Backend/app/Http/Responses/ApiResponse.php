@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Http\Responses;
+
 /**
  * Envelope padronizado para respostas JSON da API.
  *

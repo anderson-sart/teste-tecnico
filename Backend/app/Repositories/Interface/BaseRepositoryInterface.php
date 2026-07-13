@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Repositories\Interface;
+
 /**
  * Interface base para todos os repositories.
  * Define o contrato padrão de operações CRUD e consultas.
@@ -9,7 +11,7 @@ interface BaseRepositoryInterface {
     /**
      * Buscar todos os registros
      */
-    public function all(): array;
+    public function all(int $limit = 1000): array;
     
     /**
      * Buscar com paginação, busca e ordenação
@@ -45,4 +47,9 @@ interface BaseRepositoryInterface {
      * Contar registros
      */
     public function count(string $search = ''): int;
+
+    /**
+     * Somar valor de uma coluna numérica
+     */
+    public function sum(string $column): float;
 }
