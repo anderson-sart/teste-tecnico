@@ -28,10 +28,7 @@ class UserController extends Controller {
         ]);
         
         // Remover senha da resposta
-        $result['data'] = array_map(function($user) {
-            unset($user['password']);
-            return $user;
-        }, $result['data']);
+        $result['data'] = collect($result['data'])->map(fn($u) => collect($u)->except('password')->all())->all();
         
         return ApiResponse::paginated($result);
     }

@@ -37,6 +37,9 @@ require __DIR__ . '/database/DB.php';
 require __DIR__ . '/app/Http/Request.php';
 require __DIR__ . '/app/Http/JWT.php';
 
+// Boot Eloquent
+DB::boot();
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');

@@ -1,79 +1,31 @@
 <?php
 
-class DB {
-    private static $connection = null;
-    
-    public static function connection() {
-        if (self::$connection === null) {
-            $host = env('DB_HOST', 'db');
-            $name = env('DB_DATABASE', 'softline_db');
-            $user = env('DB_USERNAME', 'softline_user');
-            $pass = env('DB_PASSWORD', 'softline_pass');
-            
-            try {
-                self::$connection = new PDO(
-                    "pgsql:host=$host;dbname=$name",
-                    $user,
-                    $pass,
-                    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-                );
-            } catch (PDOException $e) {
-                throw new Exception('Database connection failed: ' . $e->getMessage());
-            }
-        }
-        
-        return self::$connection;
-    }
-    
-    public static function table($table) {
-        return new QueryBuilder(self::connection(), $table);
-    }
-}
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-class QueryBuilder {
-    private $pdo;
-    private $table;
-    private $where = [];
-    
-    public function __construct($pdo, $table) {
-        $this->pdo = $pdo;
-        $this->table = $table;
+class DB {
+    private static bool $booted = false;
+
+    public static function boot(): void {
+        if (self::$booted) return;
+
+        $capsule = new Capsule;
+        $capsule->addConnection([
+            'driver'   => 'pgsql',
+            'host'     => env('DB_HOST', 'db'),
+            'database' => env('DB_DATABASE', 'softline_db'),
+            'username' => env('DB_USERNAME', 'softline_user'),
+            'password' => env('DB_PASSWORD', 'softline_pass'),
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'schema'   => 'public',
+        ]);
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
+
+        self::$booted = true;
     }
-    
-    public function where($column, $value) {
-        $this->where[] = [$column, $value];
-        return $this;
-    }
-    
-    public function whereNull($column) {
-        $this->where[] = [$column, null, 'IS NULL'];
-        return $this;
-    }
-    
-    public function get() {
-        $sql = "SELECT * FROM {$this->table}";
-        $params = [];
-        
-        if (!empty($this->where)) {
-            $conditions = [];
-            foreach ($this->where as $w) {
-                if (isset($w[2]) && $w[2] === 'IS NULL') {
-                    $conditions[] = "{$w[0]} IS NULL";
-                } else {
-                    $conditions[] = "{$w[0]} = ?";
-                    $params[] = $w[1];
-                }
-            }
-            $sql .= " WHERE " . implode(' AND ', $conditions);
-        }
-        
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-    
-    public function first() {
-        $results = $this->get();
-        return $results[0] ?? null;
+
+    public static function connection(): \PDO {
+        return Capsule::connection()->getPdo();
     }
 }

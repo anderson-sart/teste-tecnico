@@ -1,8 +1,11 @@
 <?php
 
-class User extends Model {
-    protected $table = 'users';
-    protected $softDelete = false;
+use Illuminate\Database\Eloquent\Model as EloquentModel;
+
+class User extends EloquentModel {
+    protected $table    = 'users';
     protected $fillable = ['username', 'password', 'is_admin'];
-    protected $searchable = ['username'];
+    protected $hidden   = ['password'];
+
+    public static array $searchable = ['username'];
 }
