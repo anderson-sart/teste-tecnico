@@ -22,7 +22,7 @@
                     </a>
                 </div>
                 <div class="col-12 col-md">
-                    <input type="text" class="form-control" x-model.debounce.3000ms="search" placeholder="🔍 Pesquisar...">
+                    <input type="text" class="form-control" x-model.debounce.1000ms="search" placeholder="🔍 Pesquisar...">
                 </div>
             </div>
             <div class="table-responsive">
