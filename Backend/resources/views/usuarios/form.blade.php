@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Novo Usuário')
+
+@section('content')
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
 <div class="container-fluid" x-data="usuarioForm()">
     <nav aria-label="breadcrumb" class="mb-3">
@@ -15,9 +19,7 @@
                     <h3 class="mb-0"><i class="bi bi-person-plus me-2"></i>Novo Usuário</h3>
                 </div>
                 <div class="card-body p-4">
-                    <a href="/usuarios" class="btn btn-outline-secondary mb-4">
-                        <i class="bi bi-arrow-left"></i> Voltar
-                    </a>
+                    <a href="/usuarios" class="btn btn-outline-secondary mb-4"><i class="bi bi-arrow-left"></i> Voltar</a>
                     <form @submit.prevent="save()">
                         <div class="row g-3">
                             <div class="col-12">
@@ -46,16 +48,15 @@
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); ?>
+</div>
+@endsection
+
+@section('scripts')
 <script>
 function usuarioForm() {
     return {
-        form: {
-            username: '',
-            password: ''
-        },
+        form: { username: '', password: '' },
         showPassword: false,
-        
         async save() {
             this.$store.loading.show();
             try {
@@ -64,19 +65,12 @@ function usuarioForm() {
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(this.form)
                 });
-                
                 const data = await res.json();
-                
                 if (res.ok) {
                     this.$store.toast.show('Usuário criado!', 'success');
                     setTimeout(() => window.location.href = '/usuarios', 1000);
                 } else {
-                    if (data.errors) {
-                        const errorMsg = Object.values(data.errors).flat().join(', ');
-                        this.$store.toast.show(errorMsg, 'error');
-                    } else {
-                        this.$store.toast.show(data.message || 'Erro ao salvar usuário', 'error');
-                    }
+                    this.$store.toast.show(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Erro ao salvar', 'error');
                     this.$store.loading.hide();
                 }
             } catch (e) {
@@ -87,5 +81,4 @@ function usuarioForm() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Novo Usuário'; include __DIR__ . '/../layout.php'; ?>
-</div>
+@endsection

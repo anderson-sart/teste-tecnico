@@ -24,7 +24,7 @@ $router->get('/', function() {
         header('Location: /menu');
         exit;
     }
-    render('login');
+    blade('login');
 });
 
 $router->get('/login', function() {
@@ -32,43 +32,43 @@ $router->get('/login', function() {
         header('Location: /menu');
         exit;
     }
-    render('login');
+    blade('login');
 });
 
 // Protected Routes
 $router->get('/menu', function() {
     requireAuth();
-    render('menu');
+    blade('menu');
 });
 
 $router->get('/produtos', function() {
     requireAuth();
-    render('produtos/index');
+    blade('produtos.index');
 });
 
 $router->get('/produtos/create', function() {
     requireAuth();
-    render('produtos/form');
+    blade('produtos.form');
 });
 
 $router->get('/produtos/edit/{id}', function() {
     requireAuth();
-    render('produtos/form');
+    blade('produtos.form');
 });
 
 $router->get('/clientes', function() {
     requireAuth();
-    render('clientes/index');
+    blade('clientes.index');
 });
 
 $router->get('/clientes/create', function() {
     requireAuth();
-    render('clientes/form');
+    blade('clientes.form');
 });
 
 $router->get('/clientes/edit/{id}', function() {
     requireAuth();
-    render('clientes/form');
+    blade('clientes.form');
 });
 
 $router->get('/usuarios', function() {
@@ -78,7 +78,7 @@ $router->get('/usuarios', function() {
         header('Location: /menu');
         exit;
     }
-    render('usuarios/index');
+    blade('usuarios.index');
 });
 
 $router->get('/usuarios/create', function() {
@@ -88,7 +88,7 @@ $router->get('/usuarios/create', function() {
         header('Location: /menu');
         exit;
     }
-    render('usuarios/form');
+    blade('usuarios.form');
 });
 
 // Logout
@@ -105,5 +105,5 @@ $router->get('/logout', function() {
 
 $router->get('/change-password', function() {
     requireAuth();
-    render('change-password');
+    blade('change-password');
 });

@@ -36,6 +36,26 @@ function render($view, $data = []) {
 }
 
 /**
+ * Render a Blade view
+ */
+function blade($view, $data = []) {
+    static $factory = null;
+    if ($factory === null) {
+        $views  = __DIR__ . '/../resources/views';
+        $cache  = __DIR__ . '/../storage/framework/views';
+        $files  = new \Illuminate\Filesystem\Filesystem;
+        $events = new \Illuminate\Events\Dispatcher;
+        $resolver = new \Illuminate\View\Engines\EngineResolver;
+        $compiler = new \Illuminate\View\Compilers\BladeCompiler($files, $cache);
+        $resolver->register('blade', fn() => new \Illuminate\View\Engines\CompilerEngine($compiler, $files));
+        $resolver->register('php', fn() => new \Illuminate\View\Engines\PhpEngine($files));
+        $finder  = new \Illuminate\View\FileViewFinder($files, [$views]);
+        $factory = new \Illuminate\View\Factory($resolver, $finder, $events);
+    }
+    echo $factory->make($view, $data)->render();
+}
+
+/**
  * Redirect to a URL
  */
 function redirect($url) {

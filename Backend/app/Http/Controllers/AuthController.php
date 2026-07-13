@@ -5,11 +5,9 @@ class AuthController extends Controller {
     public function login() {
         $username = Request::input('username');
         $password = Request::input('password');
-        
-        $pdo = DB::connection();
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
-        $stmt->execute([$username]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $repo = new UserRepositoryImplementation();
+        $user = $repo->findByUsername($username);
         
         if ($user && password_verify($password, $user['password'])) {
             $token = JWT::encode([

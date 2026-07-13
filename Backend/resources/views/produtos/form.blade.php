@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Formulário de Produto')
+
+@section('content')
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
 <div class="container-fluid" x-data="produtoForm()" x-init="init()">
     <nav aria-label="breadcrumb" class="mb-3">
@@ -15,16 +19,13 @@
                     <h3 class="mb-0"><i class="bi bi-box-seam me-2"></i>Formulário de Produto</h3>
                 </div>
                 <div class="card-body p-4">
-                    <a href="/produtos" class="btn btn-outline-secondary mb-4">
-                        <i class="bi bi-arrow-left"></i> Voltar
-                    </a>
+                    <a href="/produtos" class="btn btn-outline-secondary mb-4"><i class="bi bi-arrow-left"></i> Voltar</a>
                     <form @submit.prevent="save()">
                         <div class="row g-3">
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Descrição (máx 60) *</label>
                                 <input type="text" class="form-control" x-model="form.descricao" maxlength="60" required>
-                                <div class="char-counter" x-text="`${form.descricao.length}/60`" 
-                                     :class="{'text-danger': form.descricao.length >= 54}"></div>
+                                <div class="char-counter" x-text="`${form.descricao.length}/60`" :class="{'text-danger': form.descricao.length >= 54}"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Código de Barras</label>
@@ -55,71 +56,45 @@
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); ?>
+</div>
+@endsection
+
+@section('scripts')
 <script>
 function produtoForm() {
     return {
         id: null,
-        form: {
-            descricao: '',
-            codigo_barras: '',
-            valor_venda: '',
-            peso_bruto: '',
-            peso_liquido: ''
-        },
-        
+        form: { descricao: '', codigo_barras: '', valor_venda: '', peso_bruto: '', peso_liquido: '' },
         async init() {
-            const path = window.location.pathname;
-            const match = path.match(/\/produtos\/edit\/(\d+)/);
-            if (match) {
-                this.id = match[1];
-                await this.load();
-            }
+            const match = window.location.pathname.match(/\/produtos\/edit\/(\d+)/);
+            if (match) { this.id = match[1]; await this.load(); }
         },
-        
         async load() {
             this.$store.loading.show();
             try {
                 const res = await fetch('/api/produtos/' + this.id);
                 const data = await res.json();
-                this.form = {
-                    descricao: data.descricao,
-                    codigo_barras: data.codigo_barras || '',
-                    valor_venda: data.valor_venda,
-                    peso_bruto: data.peso_bruto,
-                    peso_liquido: data.peso_liquido
-                };
+                this.form = { descricao: data.descricao, codigo_barras: data.codigo_barras || '', valor_venda: data.valor_venda, peso_bruto: data.peso_bruto, peso_liquido: data.peso_liquido };
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar produto', 'error');
             } finally {
                 this.$store.loading.hide();
             }
         },
-        
         async save() {
             this.$store.loading.show();
             try {
-                const url = this.id ? '/api/produtos/' + this.id : '/api/produtos';
-                const method = this.id ? 'PUT' : 'POST';
-                
-                const res = await fetch(url, {
-                    method,
+                const res = await fetch(this.id ? '/api/produtos/' + this.id : '/api/produtos', {
+                    method: this.id ? 'PUT' : 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(this.form)
                 });
-                
                 const data = await res.json();
-                
                 if (res.ok) {
                     this.$store.toast.show(this.id ? 'Produto atualizado!' : 'Produto criado!', 'success');
                     setTimeout(() => window.location.href = '/produtos', 1000);
                 } else {
-                    if (data.errors) {
-                        const errorMsg = Object.values(data.errors).flat().join(', ');
-                        this.$store.toast.show(errorMsg, 'error');
-                    } else {
-                        this.$store.toast.show(data.message || 'Erro ao salvar produto', 'error');
-                    }
+                    this.$store.toast.show(data.errors ? Object.values(data.errors).flat().join(', ') : data.message || 'Erro ao salvar', 'error');
                     this.$store.loading.hide();
                 }
             } catch (e) {
@@ -130,5 +105,4 @@ function produtoForm() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Formulário de Produto'; include __DIR__ . '/../layout.php'; ?>
-</div>
+@endsection

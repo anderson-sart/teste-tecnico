@@ -1,20 +1,20 @@
-<?php ob_start(); $authUser = JWT::getUser(); ?>
+@extends('layout')
+
+@section('title', 'Menu')
+
+@section('content')
+@php $authUser = \JWT::getUser(); @endphp
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;" x-data="dashboard()" x-init="init()">
     <div class="container">
-        <!-- Header -->
         <div class="text-center mb-5">
-            <h1 class="text-white fw-bold display-5 mb-2">Bem-vindo, <?= $authUser['username'] ?? 'Usuário' ?>!</h1>
+            <h1 class="text-white fw-bold display-5 mb-2">Bem-vindo, {{ $authUser['username'] ?? 'Usuário' }}!</h1>
             <p class="text-white-50 fs-5">Gerencie seus produtos e clientes</p>
         </div>
-        
-        <!-- Estatísticas -->
         <div class="row g-4 mb-5">
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-lg">
                     <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-box-seam text-primary" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <i class="bi bi-box-seam text-primary mb-3" style="font-size: 3.5rem;"></i>
                         <h3 class="fw-bold mb-1" x-text="stats.produtos">0</h3>
                         <p class="text-muted mb-0">Produtos</p>
                     </div>
@@ -23,9 +23,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-lg">
                     <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-people text-success" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <i class="bi bi-people text-success mb-3" style="font-size: 3.5rem;"></i>
                         <h3 class="fw-bold mb-1" x-text="stats.clientes">0</h3>
                         <p class="text-muted mb-0">Clientes</p>
                     </div>
@@ -34,9 +32,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-lg">
                     <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-currency-dollar text-warning" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <i class="bi bi-currency-dollar text-warning mb-3" style="font-size: 3.5rem;"></i>
                         <h3 class="fw-bold mb-1">R$ <span x-text="stats.valorTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})">0,00</span></h3>
                         <p class="text-muted mb-0">Valor Total</p>
                     </div>
@@ -45,17 +41,13 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 border-0 shadow-lg">
                     <div class="card-body text-center p-4">
-                        <div class="mb-3">
-                            <i class="bi bi-graph-up text-info" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <i class="bi bi-graph-up text-info mb-3" style="font-size: 3.5rem;"></i>
                         <h3 class="fw-bold mb-1" x-text="stats.produtos + stats.clientes">0</h3>
                         <p class="text-muted mb-0">Total de Registros</p>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Ações Rápidas -->
         <div class="row g-4">
             <div class="col-lg-4">
                 <a href="/produtos" class="text-decoration-none">
@@ -79,7 +71,7 @@
                     </div>
                 </a>
             </div>
-            <?php if (!empty($authUser['is_admin'])): ?>
+            @if(!empty($authUser['is_admin']))
             <div class="col-lg-4">
                 <a href="/usuarios" class="text-decoration-none">
                     <div class="card h-100 border-0 shadow-lg hover-lift">
@@ -91,9 +83,8 @@
                     </div>
                 </a>
             </div>
-            <?php endif; ?>
+            @endif
         </div>
-        
         <div class="row g-4 mt-2">
             <div class="col-lg-12">
                 <a href="/change-password" class="text-decoration-none">
@@ -109,23 +100,19 @@
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); ?>
+@endsection
+
+@section('scripts')
 <script>
 function dashboard() {
     return {
         stats: { produtos: 0, clientes: 0, valorTotal: 0 },
-        theme: localStorage.getItem('theme') || 'light',
-        
-        async init() {
-            await this.loadStats();
-        },
-        
+        async init() { await this.loadStats(); },
         async loadStats() {
             this.$store.loading.show();
             try {
                 const res = await fetch('/api/stats');
                 const stats = await res.json();
-                
                 this.stats.produtos = stats.produtos;
                 this.stats.clientes = stats.clientes;
                 this.stats.valorTotal = stats.valor_total;
@@ -138,4 +125,4 @@ function dashboard() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Menu'; include __DIR__ . '/layout.php'; ?>
+@endsection

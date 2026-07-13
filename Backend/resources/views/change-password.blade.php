@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Trocar Senha')
+
+@section('content')
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); display: flex; align-items: center; justify-content: center; padding: 20px;" x-data="changePassword()">
     <div class="container">
         <div class="row justify-content-center">
@@ -10,9 +14,7 @@
                             <h3 class="mt-3 fw-bold">Trocar Senha</h3>
                             <p class="text-muted">Altere sua senha de acesso</p>
                         </div>
-
                         <form @submit.prevent="submit()">
-                            <!-- Senha Atual -->
                             <div class="mb-3">
                                 <label class="form-label">Senha Atual</label>
                                 <div class="input-group">
@@ -22,8 +24,6 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Nova Senha -->
                             <div class="mb-3">
                                 <label class="form-label">Nova Senha</label>
                                 <div class="input-group">
@@ -32,8 +32,6 @@
                                         <i :class="show.new ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                                     </button>
                                 </div>
-                                
-                                <!-- Medidor de Força -->
                                 <div class="mt-2" x-show="form.new_password">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <small class="text-muted">Força da senha:</small>
@@ -44,8 +42,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Confirmar Nova Senha -->
                             <div class="mb-3">
                                 <label class="form-label">Confirmar Nova Senha</label>
                                 <div class="input-group">
@@ -54,19 +50,13 @@
                                         <i :class="show.confirm ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                                     </button>
                                 </div>
-                                <small class="text-danger" x-show="form.confirm_password && form.new_password !== form.confirm_password">
-                                    As senhas não coincidem
-                                </small>
+                                <small class="text-danger" x-show="form.confirm_password && form.new_password !== form.confirm_password">As senhas não coincidem</small>
                             </div>
-
-                            <!-- Botões -->
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary" :disabled="!isValid()">
                                     <i class="bi bi-check-circle me-2"></i>Alterar Senha
                                 </button>
-                                <a href="/menu" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Voltar
-                                </a>
+                                <a href="/menu" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar</a>
                             </div>
                         </form>
                     </div>
@@ -75,52 +65,31 @@
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); ?>
+@endsection
+
+@section('scripts')
 <script>
 function changePassword() {
     return {
-        form: {
-            current_password: '',
-            new_password: '',
-            confirm_password: ''
-        },
-        show: {
-            current: false,
-            new: false,
-            confirm: false
-        },
-        strength: {
-            text: '',
-            class: '',
-            percent: 0
-        },
-        
+        form: { current_password: '', new_password: '', confirm_password: '' },
+        show: { current: false, new: false, confirm: false },
+        strength: { text: '', class: '', percent: 0 },
         checkStrength() {
             const pwd = this.form.new_password;
             let score = 0;
-            
             if (pwd.length >= 6) score++;
             if (pwd.length >= 8) score++;
             if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
             if (/\d/.test(pwd)) score++;
             if (/[^a-zA-Z0-9]/.test(pwd)) score++;
-            
-            if (score <= 2) {
-                this.strength = { text: 'Fraca', class: 'bg-danger', percent: 33 };
-            } else if (score <= 3) {
-                this.strength = { text: 'Média', class: 'bg-warning', percent: 66 };
-            } else {
-                this.strength = { text: 'Forte', class: 'bg-success', percent: 100 };
-            }
+            if (score <= 2) this.strength = { text: 'Fraca', class: 'bg-danger', percent: 33 };
+            else if (score <= 3) this.strength = { text: 'Média', class: 'bg-warning', percent: 66 };
+            else this.strength = { text: 'Forte', class: 'bg-success', percent: 100 };
         },
-        
         isValid() {
-            return this.form.current_password && 
-                   this.form.new_password && 
-                   this.form.new_password === this.form.confirm_password &&
-                   this.form.new_password.length >= 6;
+            return this.form.current_password && this.form.new_password &&
+                   this.form.new_password === this.form.confirm_password && this.form.new_password.length >= 6;
         },
-        
         async submit() {
             this.$store.loading.show();
             try {
@@ -129,9 +98,7 @@ function changePassword() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.form)
                 });
-                
                 const data = await response.json();
-                
                 if (data.success) {
                     this.$store.toast.show('Senha alterada com sucesso!', 'success');
                     setTimeout(() => window.location.href = '/menu', 1500);
@@ -147,4 +114,4 @@ function changePassword() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Trocar Senha'; include __DIR__ . '/layout.php'; ?>
+@endsection

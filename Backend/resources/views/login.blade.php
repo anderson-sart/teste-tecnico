@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Login')
+
+@section('content')
 <div class="gradient-bg d-flex align-items-center justify-content-center" style="padding: 40px 20px;" x-data="loginForm()">
     <div class="card shadow-lg" style="width: 100%; max-width: 450px;">
         <div class="card-body p-4 p-md-5">
@@ -9,15 +13,11 @@
             </div>
             <form @submit.prevent="login()">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-person"></i> Usuário
-                    </label>
+                    <label class="form-label fw-semibold"><i class="bi bi-person"></i> Usuário</label>
                     <input type="text" class="form-control form-control-lg" x-model="username" required>
                 </div>
                 <div class="mb-4">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-lock"></i> Senha
-                    </label>
+                    <label class="form-label fw-semibold"><i class="bi bi-lock"></i> Senha</label>
                     <div class="input-group input-group-lg">
                         <input :type="showPassword ? 'text' : 'password'" class="form-control" x-model="password" required>
                         <button type="button" class="btn btn-outline-secondary" @click="showPassword = !showPassword">
@@ -32,31 +32,23 @@
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); ?>
+@endsection
+
+@section('scripts')
 <script>
 function loginForm() {
     return {
-        username: '',
-        password: '',
-        showPassword: false,
-        loading: false,
-        
+        username: '', password: '', showPassword: false, loading: false,
         async login() {
             this.loading = true;
             this.$store.loading.show();
-            
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        username: this.username,
-                        password: this.password
-                    })
+                    body: JSON.stringify({ username: this.username, password: this.password })
                 });
-                
                 const data = await res.json();
-                
                 if (data.success) {
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('auth_token', data.token);
@@ -77,4 +69,4 @@ function loginForm() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Login'; include __DIR__ . '/layout.php'; ?>
+@endsection

@@ -1,4 +1,8 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Produtos')
+
+@section('content')
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
 <div class="container-fluid" x-data="produtosPage()" x-init="init()">
     <nav aria-label="breadcrumb" class="mb-3">
@@ -47,8 +51,7 @@
                             </button>
                         </div>
                     </div>
-                    
-                    <!-- Filtros Avançados -->
+
                     <div x-show="showFilters" x-collapse class="mt-3">
                         <div class="card card-body">
                             <div class="row g-2">
@@ -69,27 +72,21 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="table-responsive mt-3">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:40px">
-                                        <input type="checkbox" class="form-check-input" 
+                                        <input type="checkbox" class="form-check-input"
                                             :checked="selected.length === paginatedData.length && paginatedData.length > 0"
                                             :indeterminate="selected.length > 0 && selected.length < paginatedData.length"
                                             @change="toggleAll($event.target.checked)">
                                     </th>
-                                    <th style="cursor:pointer" @click="sortBy('codigo')">
-                                        Código <i class="bi bi-arrow-down-up"></i>
-                                    </th>
-                                    <th style="cursor:pointer" @click="sortBy('descricao')">
-                                        Descrição <i class="bi bi-arrow-down-up"></i>
-                                    </th>
+                                    <th style="cursor:pointer" @click="sortBy('codigo')">Código <i class="bi bi-arrow-down-up"></i></th>
+                                    <th style="cursor:pointer" @click="sortBy('descricao')">Descrição <i class="bi bi-arrow-down-up"></i></th>
                                     <th class="d-none d-md-table-cell">Cód. Barras</th>
-                                    <th style="cursor:pointer" @click="sortBy('valor_venda')">
-                                        Valor <i class="bi bi-arrow-down-up"></i>
-                                    </th>
+                                    <th style="cursor:pointer" @click="sortBy('valor_venda')">Valor <i class="bi bi-arrow-down-up"></i></th>
                                     <th class="d-none d-lg-table-cell">P. Bruto</th>
                                     <th class="d-none d-lg-table-cell">P. Líquido</th>
                                     <th>Ações</th>
@@ -99,7 +96,7 @@
                                 <template x-for="p in paginatedData" :key="p.codigo">
                                     <tr>
                                         <td>
-                                            <input type="checkbox" class="form-check-input" 
+                                            <input type="checkbox" class="form-check-input"
                                                 :value="p.codigo"
                                                 :checked="selected.includes(p.codigo)"
                                                 @change="toggleSelect(p.codigo)">
@@ -112,15 +109,9 @@
                                         <td class="d-none d-lg-table-cell" x-text="`${parseFloat(p.peso_liquido).toFixed(3)} kg`"></td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
-                                                <button class="btn btn-info" @click="view(p)" title="Ver">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                                <a :href="`/produtos/edit/${p.codigo}?page=${currentPage}`" class="btn btn-warning" title="Editar">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <button class="btn btn-danger" @click="del(p)" title="Deletar">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                                <button class="btn btn-info" @click="view(p)" title="Ver"><i class="bi bi-eye"></i></button>
+                                                <a :href="`/produtos/edit/${p.codigo}?page=${currentPage}`" class="btn btn-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                                <button class="btn btn-danger" @click="del(p)" title="Deletar"><i class="bi bi-trash"></i></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -131,9 +122,7 @@
                     <nav>
                         <ul class="pagination justify-content-center">
                             <template x-if="currentPage > 1">
-                                <li class="page-item">
-                                    <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
-                                </li>
+                                <li class="page-item"><a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a></li>
                             </template>
                             <template x-for="page in pageNumbers" :key="page">
                                 <li class="page-item" :class="{'active': page === currentPage}">
@@ -141,9 +130,7 @@
                                 </li>
                             </template>
                             <template x-if="currentPage < totalPages">
-                                <li class="page-item">
-                                    <a class="page-link" href="#" @click.prevent="currentPage++">Próximo</a>
-                                </li>
+                                <li class="page-item"><a class="page-link" href="#" @click.prevent="currentPage++">Próximo</a></li>
                             </template>
                         </ul>
                     </nav>
@@ -153,7 +140,6 @@
     </div>
 </div>
 
-<!-- Modal -->
 <div class="modal fade" id="viewModal" tabindex="-1" x-data="{ produto: null }">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -174,45 +160,33 @@
         </div>
     </div>
 </div>
+</div>
+@endsection
 
-<?php $content = ob_get_clean(); ob_start(); ?>
+@section('scripts')
 <script>
 function produtosPage() {
     return {
-        data: [],
-        search: '',
-        currentPage: 1,
-        perPage: 10,
-        totalPages: 1,
-        total: 0,
-        sortField: 'codigo',
-        sortDir: 'desc',
-        selected: [],
-        showFilters: false,
-        filters: { priceMin: 0, priceMax: 999999 },
-        loading: false,
-        
+        data: [], search: '', currentPage: 1, perPage: 10,
+        totalPages: 1, total: 0, sortField: 'codigo', sortDir: 'desc',
+        selected: [], showFilters: false, filters: { priceMin: 0, priceMax: 999999 },
+
         async init() {
             const urlParams = new URLSearchParams(window.location.search);
             const page = urlParams.get('page');
             if (page) this.currentPage = parseInt(page);
-            
             this.$watch('search', () => { this.currentPage = 1; this.load(); });
             this.$watch('currentPage', () => this.load());
             this.$watch('perPage', () => { this.currentPage = 1; this.load(); });
-            
             await this.load();
         },
-        
+
         async load() {
             this.$store.loading.show();
             try {
                 const params = new URLSearchParams({
-                    search: this.search,
-                    sort_by: this.sortField,
-                    sort_dir: this.sortDir,
-                    page: this.currentPage,
-                    per_page: this.perPage,
+                    search: this.search, sort_by: this.sortField, sort_dir: this.sortDir,
+                    page: this.currentPage, per_page: this.perPage,
                 });
                 const res = await fetch('/api/produtos?' + params);
                 const result = await res.json();
@@ -226,54 +200,43 @@ function produtosPage() {
                 this.$store.loading.hide();
             }
         },
-        
-        get paginatedData() {
-            return this.data;
-        },
-        
+
+        get paginatedData() { return this.data; },
+
         get pageNumbers() {
             const pages = [];
             for (let i = 1; i <= this.totalPages; i++) {
-                if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
-                    pages.push(i);
-                }
+                if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) pages.push(i);
             }
             return pages;
         },
-        
+
         sortBy(field) {
-            if (this.sortField === field) {
-                this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.sortField = field;
-                this.sortDir = 'asc';
-            }
-            this.currentPage = 1;
-            this.load();
+            if (this.sortField === field) { this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; }
+            else { this.sortField = field; this.sortDir = 'asc'; }
+            this.currentPage = 1; this.load();
         },
-        
+
         toggleSelect(id) {
             const idx = this.selected.indexOf(id);
             idx === -1 ? this.selected.push(id) : this.selected.splice(idx, 1);
         },
-        
-        toggleAll(checked) {
-            this.selected = checked ? this.paginatedData.map(p => p.codigo) : [];
-        },
-        
+
+        toggleAll(checked) { this.selected = checked ? this.paginatedData.map(p => p.codigo) : []; },
+
         view(p) {
             const modal = document.querySelector('#viewModal [x-data]');
             Alpine.$data(modal).produto = p;
             new bootstrap.Modal(document.getElementById('viewModal')).show();
         },
-        
+
         del(p) {
             confirmDelete(
                 `<p>Deseja realmente excluir o produto?</p><p class="fw-bold mb-0">${p.descricao}</p>`,
                 async () => {
                     this.$store.loading.show();
                     try {
-                        await fetch('/api/produtos/' + p.codigo, {method: 'DELETE'});
+                        await fetch('/api/produtos/' + p.codigo, { method: 'DELETE' });
                         this.$store.toast.show('Produto excluído com sucesso!', 'success');
                         await this.load();
                     } catch (e) {
@@ -283,14 +246,14 @@ function produtosPage() {
                 }
             );
         },
-        
+
         deleteSelected() {
             confirmDelete(
                 `<p>Deseja realmente excluir <strong>${this.selected.length}</strong> produto(s)?</p>`,
                 async () => {
                     this.$store.loading.show();
                     try {
-                        await Promise.all(this.selected.map(id => fetch('/api/produtos/' + id, {method: 'DELETE'})));
+                        await Promise.all(this.selected.map(id => fetch('/api/produtos/' + id, { method: 'DELETE' })));
                         this.$store.toast.show(`${this.selected.length} produto(s) excluído(s)!`, 'success');
                         this.selected = [];
                         await this.load();
@@ -304,5 +267,4 @@ function produtosPage() {
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Produtos'; include __DIR__ . '/../layout.php'; ?>
-</div>
+@endsection

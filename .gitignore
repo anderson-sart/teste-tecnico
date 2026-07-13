@@ -27,3 +27,4 @@ Database/*.log
 # Docker
 .docker/
 docker-compose.override.yml
+composer.phar

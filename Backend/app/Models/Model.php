@@ -147,7 +147,7 @@ class Model {
         $stmt = $pdo->prepare($sql);
         $stmt->execute(array_values($data));
         
-        return [$instance->primaryKey => $pdo->lastInsertId()];
+        return static::find($pdo->lastInsertId());
     }
     
     public static function update($id, $data) {

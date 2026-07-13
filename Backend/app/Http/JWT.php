@@ -3,7 +3,11 @@
 class JWT {
     
     private static function getSecret(): string {
-        return env('JWT_SECRET', 'default-secret-change-in-production-k8s');
+        $secret = env('JWT_SECRET');
+        if (!$secret) {
+            throw new \RuntimeException('JWT_SECRET não definido nas variáveis de ambiente');
+        }
+        return $secret;
     }
     
     private static function base64UrlEncode(string $data): string {

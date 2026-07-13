@@ -1,4 +1,9 @@
-<?php ob_start(); ?>
+@extends('layout')
+
+@section('title', 'Usuários')
+
+@section('content')
+@php $authUser = \JWT::getUser(); @endphp
 <div class="gradient-bg" style="min-height: calc(100vh - 76px); padding: 40px 20px;">
 <div class="container-fluid" x-data="usuariosPage()" x-init="init()">
     <nav aria-label="breadcrumb" class="mb-3">
@@ -10,16 +15,12 @@
     <div class="card shadow">
         <div class="card-header text-white d-flex justify-content-between align-items-center">
             <h3 class="mb-0"><i class="bi bi-people me-2"></i>Usuários</h3>
-            <a href="/usuarios/create" class="btn btn-light">
-                <i class="bi bi-plus-circle"></i> Novo Usuário
-            </a>
+            <a href="/usuarios/create" class="btn btn-light"><i class="bi bi-plus-circle"></i> Novo Usuário</a>
         </div>
         <div class="card-body">
             <div class="row g-2 mb-3">
                 <div class="col-auto">
-                    <a href="/menu" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span>
-                    </a>
+                    <a href="/menu" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Voltar</span></a>
                 </div>
                 <div class="col-12 col-md">
                     <input type="text" class="form-control" x-model.debounce.1000ms="search" placeholder="🔍 Pesquisar...">
@@ -54,9 +55,7 @@
             <nav>
                 <ul class="pagination justify-content-center">
                     <template x-if="currentPage > 1">
-                        <li class="page-item">
-                            <a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="#" @click.prevent="currentPage--">Anterior</a></li>
                     </template>
                     <template x-for="page in pageNumbers" :key="page">
                         <li class="page-item" :class="{'active': page === currentPage}">
@@ -64,110 +63,66 @@
                         </li>
                     </template>
                     <template x-if="currentPage < totalPages">
-                        <li class="page-item">
-                            <a class="page-link" href="#" @click.prevent="currentPage++">Próximo</a>
-                        </li>
+                        <li class="page-item"><a class="page-link" href="#" @click.prevent="currentPage++">Próximo</a></li>
                     </template>
                 </ul>
             </nav>
         </div>
     </div>
 </div>
-<?php $content = ob_get_clean(); ob_start(); $authUser = JWT::getUser(); ?>
+</div>
+@endsection
+
+@section('scripts')
 <script>
 function usuariosPage() {
     return {
-        data: [],
-        search: '',
-        currentPage: 1,
-        perPage: 10,
-        totalPages: 1,
-        total: 0,
-        sortField: 'id',
-        sortDir: 'desc',
-        currentUserId: <?= $authUser['id'] ?? 0 ?>,
-        
+        data: [], search: '', currentPage: 1, perPage: 10,
+        totalPages: 1, total: 0, sortField: 'id', sortDir: 'desc',
+        currentUserId: {{ $authUser['id'] ?? 0 }},
         async init() {
             this.$watch('search', () => { this.currentPage = 1; this.load(); });
             this.$watch('currentPage', () => this.load());
-            
             await this.load();
         },
-        
         async load() {
             this.$store.loading.show();
             try {
-                const params = new URLSearchParams({
-                    search: this.search,
-                    sort_by: this.sortField,
-                    sort_dir: this.sortDir,
-                    page: this.currentPage,
-                    per_page: this.perPage,
-                });
+                const params = new URLSearchParams({ search: this.search, sort_by: this.sortField, sort_dir: this.sortDir, page: this.currentPage, per_page: this.perPage });
                 const res = await fetch('/api/users?' + params);
                 const result = await res.json();
-                this.data = result.data;
-                this.total = result.meta.total;
-                this.totalPages = result.meta.last_page;
-                this.currentPage = result.meta.page;
+                this.data = result.data; this.total = result.meta.total;
+                this.totalPages = result.meta.last_page; this.currentPage = result.meta.page;
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar usuários', 'error');
-            } finally {
-                this.$store.loading.hide();
-            }
+            } finally { this.$store.loading.hide(); }
         },
-        
         get pageNumbers() {
             const pages = [];
             for (let i = 1; i <= this.totalPages; i++) {
-                if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) {
-                    pages.push(i);
-                }
+                if (i === 1 || i === this.totalPages || (i >= this.currentPage - 2 && i <= this.currentPage + 2)) pages.push(i);
             }
             return pages;
         },
-        
         sortBy(field) {
-            if (this.sortField === field) {
-                this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
-            } else {
-                this.sortField = field;
-                this.sortDir = 'asc';
-            }
-            this.currentPage = 1;
-            this.load();
+            if (this.sortField === field) this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+            else { this.sortField = field; this.sortDir = 'asc'; }
+            this.currentPage = 1; this.load();
         },
-        
         deleteUser(id) {
-            if (id == this.currentUserId) {
-                this.$store.toast.show('Você não pode excluir seu próprio usuário', 'error');
-                return;
-            }
-            
-            window.confirmDelete(
-                `Tem certeza que deseja excluir este usuário?`,
-                async () => {
-                    this.$store.loading.show();
-                    try {
-                        const res = await fetch('/api/users/' + id, { method: 'DELETE' });
-                        const data = await res.json();
-                        
-                        if (res.ok) {
-                            this.$store.toast.show('Usuário excluído!', 'success');
-                            await this.load();
-                        } else {
-                            this.$store.toast.show(data.message || 'Erro ao excluir', 'error');
-                        }
-                    } catch (e) {
-                        this.$store.toast.show('Erro ao excluir usuário', 'error');
-                    } finally {
-                        this.$store.loading.hide();
-                    }
-                }
-            );
+            if (id == this.currentUserId) { this.$store.toast.show('Você não pode excluir seu próprio usuário', 'error'); return; }
+            window.confirmDelete('Tem certeza que deseja excluir este usuário?', async () => {
+                this.$store.loading.show();
+                try {
+                    const res = await fetch('/api/users/' + id, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (res.ok) { this.$store.toast.show('Usuário excluído!', 'success'); await this.load(); }
+                    else { this.$store.toast.show(data.message || 'Erro ao excluir', 'error'); }
+                } catch (e) { this.$store.toast.show('Erro ao excluir usuário', 'error'); }
+                finally { this.$store.loading.hide(); }
+            });
         }
     };
 }
 </script>
-<?php $scripts = ob_get_clean(); $title = 'Usuários'; include __DIR__ . '/../layout.php'; ?>
-</div>
+@endsection
