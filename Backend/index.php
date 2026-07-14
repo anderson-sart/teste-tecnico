@@ -1,6 +1,9 @@
 <?php
 // No session needed - using JWT tokens for stateless auth
 
+// Load helpers early (env() is needed by exception handler)
+require_once __DIR__ . '/app/helpers.php';
+
 // Error handling
 set_error_handler(function($severity, $message, $file, $line) {
     throw new ErrorException($message, 0, $severity, $file, $line);
