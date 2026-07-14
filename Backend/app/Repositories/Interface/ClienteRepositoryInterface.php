@@ -7,5 +7,5 @@ namespace App\Repositories\Interface;
  * Estende o contrato base.
  */
 interface ClienteRepositoryInterface extends BaseRepositoryInterface {
-    // Métodos específicos de Cliente podem ser adicionados aqui
+    public function findByDocumento(string $documento, ?int $excludeId = null): ?array;
 }

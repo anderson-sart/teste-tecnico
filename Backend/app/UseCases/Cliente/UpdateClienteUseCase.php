@@ -26,6 +26,12 @@ class UpdateClienteUseCase {
             exit;
         }
 
+        if ($this->repository->findByDocumento($input->documento, $id)) {
+            http_response_code(422);
+            echo json_encode(['errors' => ['documento' => ['Documento já cadastrado.']]]);
+            exit;
+        }
+
         $this->repository->update($id, $input->toArray());
         return ClienteOutputData::from($this->repository->find($id));
     }

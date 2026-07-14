@@ -24,6 +24,12 @@ class StoreClienteUseCase {
             exit;
         }
 
+        if ($this->repository->findByDocumento($input->documento)) {
+            http_response_code(422);
+            echo json_encode(['errors' => ['documento' => ['Documento já cadastrado.']]]);
+            exit;
+        }
+
         return ClienteOutputData::from($this->repository->create($input->toArray()));
     }
 }
