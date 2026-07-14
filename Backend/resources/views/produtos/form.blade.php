@@ -73,8 +73,9 @@ function produtoForm() {
             this.$store.loading.show();
             try {
                 const res = await fetch('/api/produtos/' + this.id);
-                const data = await res.json();
-                this.form = { descricao: data.descricao, codigo_barras: data.codigo_barras || '', valor_venda: data.valor_venda, peso_bruto: data.peso_bruto, peso_liquido: data.peso_liquido };
+                const json = await res.json();
+                const p = json.data || json;
+                this.form = { descricao: p.descricao, codigo_barras: p.codigo_barras || '', valor_venda: p.valor_venda, peso_bruto: p.peso_bruto, peso_liquido: p.peso_liquido };
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar produto', 'error');
             } finally {

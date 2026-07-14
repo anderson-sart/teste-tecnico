@@ -70,8 +70,9 @@ function clienteForm() {
             this.$store.loading.show();
             try {
                 const res = await fetch('/api/clientes/' + this.id);
-                const data = await res.json();
-                this.form = { nome: data.nome, fantasia: data.fantasia || '', documento: data.documento, endereco: data.endereco || '' };
+                const json = await res.json();
+                const c = json.data || json;
+                this.form = { nome: c.nome, fantasia: c.fantasia || '', documento: c.documento, endereco: c.endereco || '' };
             } catch (e) {
                 this.$store.toast.show('Erro ao carregar cliente', 'error');
             } finally { this.$store.loading.hide(); }
