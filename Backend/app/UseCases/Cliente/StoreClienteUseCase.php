@@ -18,6 +18,12 @@ class StoreClienteUseCase {
             'endereco'  => 'nullable|max:255',
         ]);
 
+        if (!Validator::validarCPFCNPJ($input->documento)) {
+            http_response_code(422);
+            echo json_encode(['errors' => ['documento' => ['CPF ou CNPJ inválido.']]]);
+            exit;
+        }
+
         return ClienteOutputData::from($this->repository->create($input->toArray()));
     }
 }
