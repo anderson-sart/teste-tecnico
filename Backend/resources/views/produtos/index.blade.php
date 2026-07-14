@@ -138,23 +138,23 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="viewModal" tabindex="-1" x-data="{ produto: null }">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-3" x-show="produto">
-                    <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="produto?.codigo"></div>
-                    <div class="col-6"><strong>Descrição:</strong></div><div class="col-6" x-text="produto?.descricao"></div>
-                    <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6" x-text="produto?.codigo_barras || '-'"></div>
-                    <div class="col-6"><strong>Valor:</strong></div><div class="col-6" x-text="produto ? `R$ ${parseFloat(produto.valor_venda).toFixed(2)}` : ''"></div>
-                    <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6" x-text="produto ? `${parseFloat(produto.peso_bruto).toFixed(3)} kg` : ''"></div>
-                    <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6" x-text="produto ? `${parseFloat(produto.peso_liquido).toFixed(3)} kg` : ''"></div>
+    <div class="modal fade" id="viewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3" x-show="viewProduto">
+                        <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewProduto?.codigo"></div>
+                        <div class="col-6"><strong>Descrição:</strong></div><div class="col-6" x-text="viewProduto?.descricao"></div>
+                        <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6" x-text="viewProduto?.codigo_barras || '-'"></div>
+                        <div class="col-6"><strong>Valor:</strong></div><div class="col-6" x-text="viewProduto ? `R$ ${parseFloat(viewProduto.valor_venda).toFixed(2)}` : ''"></div>
+                        <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6" x-text="viewProduto ? `${parseFloat(viewProduto.peso_bruto).toFixed(3)} kg` : ''"></div>
+                        <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6" x-text="viewProduto ? `${parseFloat(viewProduto.peso_liquido).toFixed(3)} kg` : ''"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -170,6 +170,7 @@ function produtosPage() {
         data: [], search: '', currentPage: 1, perPage: 10,
         totalPages: 1, total: 0, sortField: 'codigo', sortDir: 'desc',
         selected: [], showFilters: false, filters: { priceMin: 0, priceMax: 999999 },
+        viewProduto: null,
 
         async init() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -225,8 +226,7 @@ function produtosPage() {
         toggleAll(checked) { this.selected = checked ? this.paginatedData.map(p => p.codigo) : []; },
 
         view(p) {
-            const modal = document.querySelector('#viewModal [x-data]');
-            Alpine.$data(modal).produto = p;
+            this.viewProduto = p;
             new bootstrap.Modal(document.getElementById('viewModal')).show();
         },
 

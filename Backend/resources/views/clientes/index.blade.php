@@ -106,20 +106,21 @@
     </div>
 </div>
 
-<div class="modal fade" id="viewModal" tabindex="-1" x-data="{ cliente: null }">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row g-3" x-show="cliente">
-                    <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="cliente?.codigo"></div>
-                    <div class="col-6"><strong>Nome:</strong></div><div class="col-6" x-text="cliente?.nome"></div>
-                    <div class="col-6"><strong>Fantasia:</strong></div><div class="col-6" x-text="cliente?.fantasia || '-'"></div>
-                    <div class="col-6"><strong>Documento:</strong></div><div class="col-6" x-text="cliente?.documento"></div>
-                    <div class="col-6"><strong>Endereço:</strong></div><div class="col-6" x-text="cliente?.endereco || '-'"></div>
+    <div class="modal fade" id="viewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Detalhes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3" x-show="viewCliente">
+                        <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewCliente?.codigo"></div>
+                        <div class="col-6"><strong>Nome:</strong></div><div class="col-6" x-text="viewCliente?.nome"></div>
+                        <div class="col-6"><strong>Fantasia:</strong></div><div class="col-6" x-text="viewCliente?.fantasia || '-'"></div>
+                        <div class="col-6"><strong>Documento:</strong></div><div class="col-6" x-text="viewCliente?.documento"></div>
+                        <div class="col-6"><strong>Endereço:</strong></div><div class="col-6" x-text="viewCliente?.endereco || '-'"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,6 +135,7 @@ function clientesPage() {
     return {
         data: [], search: '', currentPage: 1, perPage: 10,
         totalPages: 1, total: 0, sortField: 'codigo', sortDir: 'desc', selected: [],
+        viewCliente: null,
         async init() {
             const page = new URLSearchParams(window.location.search).get('page');
             if (page) this.currentPage = parseInt(page);
@@ -170,7 +172,7 @@ function clientesPage() {
         toggleSelect(id) { const idx = this.selected.indexOf(id); idx === -1 ? this.selected.push(id) : this.selected.splice(idx, 1); },
         toggleAll(checked) { this.selected = checked ? this.paginatedData.map(c => c.codigo) : []; },
         view(c) {
-            Alpine.$data(document.querySelector('#viewModal [x-data]')).cliente = c;
+            this.viewCliente = c;
             new bootstrap.Modal(document.getElementById('viewModal')).show();
         },
         del(c) {
