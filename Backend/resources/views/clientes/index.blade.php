@@ -174,7 +174,9 @@ function clientesPage() {
         toggleAll(checked) { this.selected = checked ? this.paginatedData.map(c => c.codigo) : []; },
         view(c) {
             this.viewCliente = c;
-            new bootstrap.Modal(document.getElementById('viewModal')).show();
+            const modalEl = document.getElementById('viewModal');
+            modalEl.addEventListener('hide.bs.modal', () => document.activeElement?.blur(), { once: true });
+            new bootstrap.Modal(modalEl).show();
         },
         del(c) {
             confirmDelete(`<p>Deseja realmente excluir o cliente?</p><p class="fw-bold mb-0">${c.nome}</p>`, async () => {

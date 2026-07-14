@@ -229,7 +229,9 @@ function produtosPage() {
 
         view(p) {
             this.viewProduto = p;
-            new bootstrap.Modal(document.getElementById('viewModal')).show();
+            const modalEl = document.getElementById('viewModal');
+            modalEl.addEventListener('hide.bs.modal', () => document.activeElement?.blur(), { once: true });
+            new bootstrap.Modal(modalEl).show();
         },
 
         del(p) {
