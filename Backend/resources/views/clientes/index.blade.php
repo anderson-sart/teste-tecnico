@@ -104,7 +104,6 @@
             </div>
         </div>
     </div>
-</div>
 
     <div class="modal fade" id="viewModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -114,13 +113,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3" x-show="viewCliente">
-                        <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewCliente?.codigo"></div>
-                        <div class="col-6"><strong>Nome:</strong></div><div class="col-6" x-text="viewCliente?.nome"></div>
-                        <div class="col-6"><strong>Fantasia:</strong></div><div class="col-6" x-text="viewCliente?.fantasia || '-'"></div>
-                        <div class="col-6"><strong>Documento:</strong></div><div class="col-6" x-text="viewCliente?.documento"></div>
-                        <div class="col-6"><strong>Endereço:</strong></div><div class="col-6" x-text="viewCliente?.endereco || '-'"></div>
-                    </div>
+                    <template x-if="viewCliente">
+                        <div class="row g-3">
+                            <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewCliente.codigo"></div>
+                            <div class="col-6"><strong>Nome:</strong></div><div class="col-6" x-text="viewCliente.nome"></div>
+                            <div class="col-6"><strong>Fantasia:</strong></div><div class="col-6" x-text="viewCliente.fantasia || '-'"></div>
+                            <div class="col-6"><strong>Documento:</strong></div><div class="col-6" x-text="viewCliente.documento"></div>
+                            <div class="col-6"><strong>Endereço:</strong></div><div class="col-6" x-text="viewCliente.endereco || '-'"></div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>

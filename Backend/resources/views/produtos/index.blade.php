@@ -147,14 +147,16 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row g-3" x-show="viewProduto">
-                        <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewProduto?.codigo"></div>
-                        <div class="col-6"><strong>Descrição:</strong></div><div class="col-6" x-text="viewProduto?.descricao"></div>
-                        <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6" x-text="viewProduto?.codigo_barras || '-'"></div>
-                        <div class="col-6"><strong>Valor:</strong></div><div class="col-6" x-text="viewProduto ? `R$ ${parseFloat(viewProduto.valor_venda).toFixed(2)}` : ''"></div>
-                        <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6" x-text="viewProduto ? `${parseFloat(viewProduto.peso_bruto).toFixed(3)} kg` : ''"></div>
-                        <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6" x-text="viewProduto ? `${parseFloat(viewProduto.peso_liquido).toFixed(3)} kg` : ''"></div>
-                    </div>
+                    <template x-if="viewProduto">
+                        <div class="row g-3">
+                            <div class="col-6"><strong>Código:</strong></div><div class="col-6" x-text="viewProduto.codigo"></div>
+                            <div class="col-6"><strong>Descrição:</strong></div><div class="col-6" x-text="viewProduto.descricao"></div>
+                            <div class="col-6"><strong>Cód. Barras:</strong></div><div class="col-6" x-text="viewProduto.codigo_barras || '-'"></div>
+                            <div class="col-6"><strong>Valor:</strong></div><div class="col-6" x-text="`R$ ${parseFloat(viewProduto.valor_venda).toFixed(2)}`"></div>
+                            <div class="col-6"><strong>Peso Bruto:</strong></div><div class="col-6" x-text="`${parseFloat(viewProduto.peso_bruto).toFixed(3)} kg`"></div>
+                            <div class="col-6"><strong>Peso Líquido:</strong></div><div class="col-6" x-text="`${parseFloat(viewProduto.peso_liquido).toFixed(3)} kg`"></div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
